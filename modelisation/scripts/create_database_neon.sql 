@@ -1,0 +1,178 @@
+DROP TABLE IF EXISTS Paiement CASCADE;
+DROP TABLE IF EXISTS LigneCommande CASCADE;
+DROP TABLE IF EXISTS Commande CASCADE;
+DROP TABLE IF EXISTS Menu CASCADE;
+DROP TABLE IF EXISTS Complement CASCADE;
+DROP TABLE IF EXISTS Burger CASCADE;
+DROP TABLE IF EXISTS Livreur CASCADE;
+DROP TABLE IF EXISTS Zone CASCADE;
+DROP TABLE IF EXISTS Client CASCADE;
+
+CREATE TABLE Client (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    telephone VARCHAR(20) UNIQUE NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    mot_de_passe VARCHAR(255) NOT NULL,
+    adresse TEXT,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Burger (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prix DECIMAL(10,2) NOT NULL,
+    image VARCHAR(255),
+    description TEXT,
+    archive BOOLEAN DEFAULT FALSE,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Complement (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    type VARCHAR(20) NOT NULL CHECK (type IN ('boisson', 'frites')),
+    prix DECIMAL(10,2) NOT NULL,
+    image VARCHAR(255),
+    archive BOOLEAN DEFAULT FALSE,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Menu (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    image VARCHAR(255),
+    burger_id INT NOT NULL,
+    boisson_id INT NOT NULL,
+    frites_id INT NOT NULL,
+    prix_calcule DECIMAL(10,2) NOT NULL,
+    archive BOOLEAN DEFAULT FALSE,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (burger_id) REFERENCES Burger(id),
+    FOREIGN KEY (boisson_id) REFERENCES Complement(id),
+    FOREIGN KEY (frites_id) REFERENCES Complement(id)
+);
+
+CREATE TABLE Zone (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    quartiers TEXT,
+    prix_livraison DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE Livreur (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    telephone VARCHAR(20) UNIQUE NOT NULL,
+    zone_id INT,
+    FOREIGN KEY (zone_id) REFERENCES Zone(id)
+);
+
+CREATE TABLE Commande (
+    id SERIAL PRIMARY KEY,
+    client_id INT NOT NULL,
+    date_commande TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    montant_total DECIMAL(10,2) NOT NULL,
+    type_recuperation VARCHAR(20) NOT NULL CHECK (type_recuperation IN ('sur_place', 'emporter', 'livraison')),
+    etat VARCHAR(20) DEFAULT 'en_cours' CHECK (etat IN ('en_cours', 'validee', 'terminee', 'annulee')),
+    zone_id INT,
+    livreur_id INT,
+    FOREIGN KEY (client_id) REFERENCES Client(id),
+    FOREIGN KEY (zone_id) REFERENCES Zone(id),
+    FOREIGN KEY (livreur_id) REFERENCES Livreur(id)
+);
+
+CREATE TABLE LigneCommande (
+    id SERIAL PRIMARY KEY,
+    commande_id INT NOT NULL,
+    produit_type VARCHAR(20) NOT NULL CHECK (produit_type IN ('burger', 'menu')),
+    produit_id INT NOT NULL,
+    quantite INT DEFAULT 1,
+    prix_unitaire DECIMAL(10,2) NOT NULL,
+    complements_ids TEXT,
+    FOREIGN KEY (commande_id) REFERENCES Commande(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Paiement (
+    id SERIAL PRIMARY KEY,
+    commande_id INT UNIQUE NOT NULL,
+    date_paiement TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    montant DECIMAL(10,2) NOT NULL,
+    methode VARCHAR(20) NOT NULL CHECK (methode IN ('wave', 'om')),
+    reference_transaction VARCHAR(100),
+    FOREIGN KEY (commande_id) REFERENCES Commande(id)
+);
+
+CREATE INDEX idx_commande_client ON Commande(client_id);
+CREATE INDEX idx_commande_date ON Commande(date_commande);
+CREATE INDEX idx_commande_etat ON Commande(etat);
+CREATE INDEX idx_ligne_commande ON LigneCommande(commande_id);
+CREATE INDEX idx_paiement_commande ON Paiement(commande_id);
+
+INSERT INTO Zone (nom, quartiers, prix_livraison) VALUES
+('Plateau/Centre-ville', 'Plateau, Médina, Fann, Mermoz, Sacré-Coeur', 1000.00),
+('Almadies', 'Almadies, Ngor, Ouakam, Yoff, Mamelles', 1500.00),
+('Point E/Fann', 'Point E, Fann Résidence, Amitié, SICAP Baobabs', 1200.00),
+('Liberté', 'Liberté 1-6, HLM, Grand-Yoff', 1300.00),
+('Parcelles Assainies', 'Unités 1-26, Cambérène', 1800.00),
+('Guédiawaye', 'Guédiawaye, Sam, Golf Sud, Médina Gounass', 2000.00),
+('Pikine', 'Pikine, Thiaroye, Diamaguène, Guinaw Rails', 2500.00),
+('Rufisque', 'Rufisque, Bargny, Diamniadio', 3000.00);
+
+INSERT INTO Livreur (nom, prenom, telephone, zone_id) VALUES
+('FALL', 'Moussa', '77 123 45 67', 1),
+('DIOP', 'Fatou', '78 234 56 78', 2),
+('NDIAYE', 'Ibrahima', '76 345 67 89', 3),
+('SARR', 'Aminata', '77 456 78 90', 4),
+('GUEYE', 'Mamadou', '78 567 89 01', 5);
+
+INSERT INTO Burger (nom, prix, image, description, archive) VALUES
+('Thiébou Burger', 3500.00, 'thiebu_burger.jpg', 'Burger inspiré du thiéboudienne avec poisson fumé', FALSE),
+('Yassa Burger', 3200.00, 'yassa_burger.jpg', 'Burger au poulet yassa avec oignons caramélisés', FALSE),
+('Classic Burger', 2500.00, 'classic.jpg', 'Burger classique avec salade, tomate, oignon', FALSE),
+('Cheese Burger', 3000.00, 'cheese.jpg', 'Burger avec double fromage cheddar', FALSE),
+('Chicken Burger', 2800.00, 'chicken.jpg', 'Burger au poulet croustillant', FALSE),
+('Veggie Burger', 2700.00, 'veggie.jpg', 'Burger végétarien avec galette de légumes', FALSE),
+('Bacon Burger', 3500.00, 'bacon.jpg', 'Burger avec bacon croustillant', FALSE),
+('Fish Burger', 3300.00, 'fish.jpg', 'Burger au poisson pané style Saint-Louis', FALSE),
+('Spicy Dibiterie', 3800.00, 'spicy_dibi.jpg', 'Burger épicé façon dibiterie dakaroise', FALSE),
+('Double Teranga', 4200.00, 'double_teranga.jpg', 'Double steak, double fromage, sauce teranga', FALSE);
+
+INSERT INTO Complement (nom, type, prix, image, archive) VALUES
+('Coca Cola', 'boisson', 500.00, 'coca.jpg', FALSE),
+('Fanta Orange', 'boisson', 500.00, 'fanta.jpg', FALSE),
+('Sprite', 'boisson', 500.00, 'sprite.jpg', FALSE),
+('Eau Kirène', 'boisson', 300.00, 'eau_kirene.jpg', FALSE),
+('Jus de Bissap', 'boisson', 800.00, 'bissap.jpg', FALSE),
+('Jus de Bouye', 'boisson', 800.00, 'bouye.jpg', FALSE),
+('Jus de Gingembre', 'boisson', 800.00, 'gingembre.jpg', FALSE),
+('Café Touba', 'boisson', 600.00, 'cafe_touba.jpg', FALSE),
+('Frites Regular', 'frites', 800.00, 'frites_regular.jpg', FALSE),
+('Frites Large', 'frites', 1200.00, 'frites_large.jpg', FALSE),
+('Frites XXL', 'frites', 1500.00, 'frites_xxl.jpg', FALSE),
+('Alloco (Bananes)', 'frites', 1000.00, 'alloco.jpg', FALSE);
+
+INSERT INTO Menu (nom, image, burger_id, boisson_id, frites_id, prix_calcule, archive) VALUES
+('Menu Thiébou', 'menu_thiebu.jpg', 1, 5, 9, 5100.00, FALSE),
+('Menu Yassa', 'menu_yassa.jpg', 2, 6, 9, 4800.00, FALSE),
+('Menu Classic', 'menu_classic.jpg', 3, 1, 9, 3800.00, FALSE),
+('Menu Cheese', 'menu_cheese.jpg', 4, 1, 9, 4300.00, FALSE),
+('Menu Chicken', 'menu_chicken.jpg', 5, 2, 9, 4100.00, FALSE),
+('Menu Veggie', 'menu_veggie.jpg', 6, 7, 9, 4300.00, FALSE),
+('Menu Dibiterie', 'menu_dibi.jpg', 9, 8, 10, 5600.00, FALSE),
+('Menu Teranga XL', 'menu_teranga.jpg', 10, 5, 11, 6200.00, FALSE);
+
+INSERT INTO Client (nom, prenom, telephone, email, mot_de_passe, adresse) VALUES
+('DIALLO', 'Amadou', '77 111 22 33', 'amadou.diallo@test.sn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Almadies, Rue 13'),
+('SECK', 'Aïssatou', '78 222 33 44', 'aissatou.seck@test.sn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Plateau, Avenue Lamine Guèye'),
+('BA', 'Ousmane', '76 333 44 55', 'ousmane.ba@test.sn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mermoz, Cité Assemblée'),
+('NDOYE', 'Khady', '77 444 55 66', 'khady.ndoye@test.sn', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sacré-Coeur 3, Villa 456');
+
+SELECT COUNT(*) AS total_zones FROM Zone;
+SELECT COUNT(*) AS total_livreurs FROM Livreur;
+SELECT COUNT(*) AS total_burgers FROM Burger;
+SELECT COUNT(*) AS total_complements FROM Complement;
+SELECT COUNT(*) AS total_menus FROM Menu;
+SELECT COUNT(*) AS total_clients FROM Client;
