@@ -1,0 +1,18 @@
+# Maven
+target/
+pom.xml.tag
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+
+# Fichiers sensibles
+src/main/resources/database.properties
+src/main/resources/cloudinary.properties
+
+# Logs
+*.log
