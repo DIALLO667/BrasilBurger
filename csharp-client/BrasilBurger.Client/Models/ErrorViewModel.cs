@@ -1,4 +1,4 @@
-namespace BrasilBurger.Client.Models;
+namespace BrasilBurger.ClientApp.Models;
 
 public class ErrorViewModel
 {

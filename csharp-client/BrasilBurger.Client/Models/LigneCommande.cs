@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BrasilBurger.Client.Models
+namespace BrasilBurger.ClientApp.Models
 {
     [Table("ligne_commande")]
     public class LigneCommande
