@@ -64,20 +64,40 @@
                 </div>
             </div>
 
-            <!-- Quantité -->
-            <div class="mb-4">
-                <label class="form-label">Quantité</label>
-                <div class="input-group" style="max-width: 150px;">
-                    <button class="btn btn-outline-secondary" type="button">-</button>
-                    <input type="number" class="form-control text-center" value="1" min="1">
-                    <button class="btn btn-outline-secondary" type="button">+</button>
+            <!-- Form Ajouter au Panier -->
+            <form method="post" asp-controller="Panier" asp-action="Ajouter">
+                <input type="hidden" name="type" value="burger">
+                <input type="hidden" name="id" value="@Model.Id">
+                
+                <!-- Quantité -->
+                <div class="mb-4">
+                    <label class="form-label">Quantité</label>
+                    <div class="input-group" style="max-width: 150px;">
+                        <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity()">-</button>
+                        <input type="number" id="quantite" name="quantite" class="form-control text-center" value="1" min="1">
+                        <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity()">+</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Bouton Ajouter au Panier -->
-            <button class="btn btn-warning btn-lg w-100">
-                <i class="bi bi-cart-plus"></i> Ajouter au panier • @Model.Prix.ToString("N0") FCFA
-            </button>
+                <!-- Bouton Ajouter -->
+                <button type="submit" class="btn btn-warning btn-lg w-100">
+                    <i class="bi bi-cart-plus"></i> Ajouter au panier • @Model.Prix.ToString("N0") FCFA
+                </button>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+    function incrementQuantity() {
+        const input = document.getElementById('quantite');
+        input.value = parseInt(input.value) + 1;
+    }
+    
+    function decrementQuantity() {
+        const input = document.getElementById('quantite');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+        }
+    }
+</script>

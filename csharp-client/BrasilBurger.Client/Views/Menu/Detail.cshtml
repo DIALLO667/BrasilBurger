@@ -124,20 +124,26 @@
                 </div>
             </div>
 
-            <!-- Quantité -->
-            <div class="mb-4">
-                <label class="form-label">Quantité</label>
-                <div class="input-group" style="max-width: 150px;">
-                    <button class="btn btn-outline-secondary" type="button">-</button>
-                    <input type="number" class="form-control text-center" value="1" min="1">
-                    <button class="btn btn-outline-secondary" type="button">+</button>
+            <!-- Form Ajouter au Panier -->
+            <form method="post" asp-controller="Panier" asp-action="Ajouter">
+                <input type="hidden" name="type" value="menu">
+                <input type="hidden" name="id" value="@Model.Id">
+                
+                <!-- Quantité -->
+                <div class="mb-4">
+                    <label class="form-label">Quantité</label>
+                    <div class="input-group" style="max-width: 150px;">
+                        <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantityMenu()">-</button>
+                        <input type="number" id="quantiteMenu" name="quantite" class="form-control text-center" value="1" min="1">
+                        <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantityMenu()">+</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Bouton Ajouter au Panier -->
-            <button class="btn btn-warning btn-lg w-100">
-                <i class="bi bi-cart-plus"></i> Ajouter au panier • @Model.PrixCalcule.ToString("N0") FCFA
-            </button>
+                <!-- Bouton Ajouter -->
+                <button type="submit" class="btn btn-warning btn-lg w-100">
+                    <i class="bi bi-cart-plus"></i> Ajouter au panier • @Model.PrixCalcule.ToString("N0") FCFA
+                </button>
+            </form>
 
             <!-- Avantage Menu -->
             <div class="alert alert-success mt-3">
@@ -147,3 +153,17 @@
         </div>
     </div>
 </div>
+
+<script>
+    function incrementQuantityMenu() {
+        const input = document.getElementById('quantiteMenu');
+        input.value = parseInt(input.value) + 1;
+    }
+    
+    function decrementQuantityMenu() {
+        const input = document.getElementById('quantiteMenu');
+        if (parseInt(input.value) > 1) {
+            input.value = parseInt(input.value) - 1;
+        }
+    }
+</script>
