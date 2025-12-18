@@ -1,0 +1,149 @@
+@model BrasilBurger.ClientApp.Models.Menu
+
+@{
+    ViewData["Title"] = Model.Nom;
+}
+
+<div class="container mt-4">
+    <!-- Bouton Retour -->
+    <a href="@Url.Action("Index", "Menu")" class="btn btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Retour aux menus
+    </a>
+
+    <div class="row">
+        <!-- Image Menu -->
+        <div class="col-md-6">
+            @if (!string.IsNullOrEmpty(Model.Image))
+            {
+                <img src="@Model.Image" class="img-fluid rounded shadow" alt="@Model.Nom">
+            }
+            else if (Model.Burger != null && !string.IsNullOrEmpty(Model.Burger.Image))
+            {
+                <img src="@Model.Burger.Image" class="img-fluid rounded shadow" alt="@Model.Nom">
+            }
+            else
+            {
+                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <span class="display-1">🍔🥤🍟</span>
+                </div>
+            }
+        </div>
+
+        <!-- Informations -->
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <h1 class="display-5 mb-0">@Model.Nom</h1>
+                <span class="badge bg-success">Menu Complet</span>
+            </div>
+
+            <p class="text-muted lead">Menu complet avec burger, boisson et frites</p>
+
+            <!-- Composition Détaillée -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Composition du Menu</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Burger -->
+                    @if (Model.Burger != null)
+                    {
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            @if (!string.IsNullOrEmpty(Model.Burger.Image))
+                            {
+                                <img src="@Model.Burger.Image" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;" alt="@Model.Burger.Nom">
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <span class="fs-2">🍔</span>
+                                </div>
+                            }
+                            <div>
+                                <h6 class="mb-1">@Model.Burger.Nom</h6>
+                                <p class="text-muted small mb-0">@Model.Burger.Prix.ToString("N0") FCFA</p>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Boisson -->
+                    @if (Model.Boisson != null)
+                    {
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            @if (!string.IsNullOrEmpty(Model.Boisson.Image))
+                            {
+                                <img src="@Model.Boisson.Image" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;" alt="@Model.Boisson.Nom">
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <span class="fs-2">🥤</span>
+                                </div>
+                            }
+                            <div>
+                                <h6 class="mb-1">@Model.Boisson.Nom</h6>
+                                <p class="text-muted small mb-0">@Model.Boisson.Prix.ToString("N0") FCFA</p>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Frites -->
+                    @if (Model.Frites != null)
+                    {
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(Model.Frites.Image))
+                            {
+                                <img src="@Model.Frites.Image" class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;" alt="@Model.Frites.Nom">
+                            }
+                            else
+                            {
+                                <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                    <span class="fs-2">🍟</span>
+                                </div>
+                            }
+                            <div>
+                                <h6 class="mb-1">@Model.Frites.Nom</h6>
+                                <p class="text-muted small mb-0">@Model.Frites.Prix.ToString("N0") FCFA</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Prix Total -->
+            <div class="card bg-light mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Prix Total</h5>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i> Calculé automatiquement
+                            </small>
+                        </div>
+                        <h2 class="text-warning mb-0">@Model.PrixCalcule.ToString("N0") FCFA</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantité -->
+            <div class="mb-4">
+                <label class="form-label">Quantité</label>
+                <div class="input-group" style="max-width: 150px;">
+                    <button class="btn btn-outline-secondary" type="button">-</button>
+                    <input type="number" class="form-control text-center" value="1" min="1">
+                    <button class="btn btn-outline-secondary" type="button">+</button>
+                </div>
+            </div>
+
+            <!-- Bouton Ajouter au Panier -->
+            <button class="btn btn-warning btn-lg w-100">
+                <i class="bi bi-cart-plus"></i> Ajouter au panier • @Model.PrixCalcule.ToString("N0") FCFA
+            </button>
+
+            <!-- Avantage Menu -->
+            <div class="alert alert-success mt-3">
+                <i class="bi bi-check-circle"></i> <strong>Économisez !</strong> 
+                Ce menu vous fait économiser par rapport à un achat séparé.
+            </div>
+        </div>
+    </div>
+</div>
