@@ -34,9 +34,8 @@ namespace BrasilBurger.ClientApp.Models
         [Required]
         [Column("mot_de_passe")]
         public string MotDePasse { get; set; } = string.Empty;
-
-        [Column("date_inscription")]
-        public DateTime DateInscription { get; set; } = DateTime.UtcNow;
+[Column("date_creation")]
+public DateTime DateCreation { get; set; } = DateTime.UtcNow;
 
         // Relations
         public virtual ICollection<Commande>? Commandes { get; set; }
