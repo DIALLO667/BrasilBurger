@@ -1,0 +1,153 @@
+@model List<BrasilBurger.ClientApp.Models.PanierItem>
+
+@{
+    ViewData["Title"] = "Mon Panier";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">🛒 Mon Panier</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <!-- Panier Vide -->
+        <div class="text-center py-5">
+            <div class="display-1 mb-3">🛒</div>
+            <h4 class="text-muted">Votre panier est vide</h4>
+            <p class="text-muted">Ajoutez des produits pour commencer !</p>
+            <a href="@Url.Action("Index", "Burger")" class="btn btn-warning mt-3">
+                Voir les Burgers
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Liste Produits -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var item = Model[i];
+                            <div class="row align-items-center mb-3 pb-3 @(i < Model.Count - 1 ? "border-bottom" : "")">
+                                <!-- Image -->
+                                <div class="col-md-2">
+                                    @if (!string.IsNullOrEmpty(item.Image))
+                                    {
+                                        <img src="@item.Image" class="img-fluid rounded" alt="@item.Nom">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 80px;">
+                                            <span class="fs-2">@(item.Type == "burger" ? "🍔" : "🍔🥤🍟")</span>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Info Produit -->
+                                <div class="col-md-4">
+                                    <h6 class="mb-1">@item.Nom</h6>
+                                    <small class="text-muted">
+                                        @if (item.Type == "menu")
+                                        {
+                                            <span>Menu : @item.CompositionBurger + @item.CompositionBoisson + @item.CompositionFrites</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Burger</span>
+                                        }
+                                    </small>
+                                    <div class="mt-1">
+                                        <span class="text-warning fw-bold">@item.Prix.ToString("N0") FCFA</span>
+                                    </div>
+                                </div>
+
+                                <!-- Quantité -->
+                                <div class="col-md-3">
+                                    <form method="post" asp-action="UpdateQuantite" class="d-flex align-items-center">
+                                        <input type="hidden" name="index" value="@i">
+                                        <button type="submit" name="quantite" value="@(item.Quantite - 1)" class="btn btn-sm btn-outline-secondary">-</button>
+                                        <input type="number" class="form-control form-control-sm text-center mx-2" value="@item.Quantite" readonly style="width: 60px;">
+                                        <button type="submit" name="quantite" value="@(item.Quantite + 1)" class="btn btn-sm btn-outline-secondary">+</button>
+                                    </form>
+                                </div>
+
+                                <!-- Total + Retirer -->
+                                <div class="col-md-3 text-end">
+                                    <div class="fw-bold mb-2">@item.Total.ToString("N0") FCFA</div>
+                                    <form method="post" asp-action="Retirer" class="d-inline">
+                                        <input type="hidden" name="index" value="@i">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Retirer
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Vider Panier -->
+                        <div class="text-end mt-3">
+                            <form method="post" asp-action="Vider" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Vider le panier ?')">
+                                    Vider le panier
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Récapitulatif -->
+            <div class="col-md-4">
+                <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-body">
+                        <h5 class="mb-3">Récapitulatif</h5>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sous-total (@Model.Sum(m => m.Quantite) produits)</span>
+                            <span>@ViewBag.Total.ToString("N0") FCFA</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                            <span>Frais de livraison</span>
+                            <span class="text-muted">À calculer</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong>Total</strong>
+                            <strong class="text-warning fs-4">@ViewBag.Total.ToString("N0") FCFA</strong>
+                        </div>
+
+                        @if (Context.Session.GetInt32("ClientId") == null)
+                        {
+                            <div class="alert alert-info small">
+                                <i class="bi bi-info-circle"></i> Connectez-vous pour commander
+                            </div>
+                            <a href="@Url.Action("Login", "Auth")" class="btn btn-warning w-100">
+                                Se connecter
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Checkout", "Commande")" class="btn btn-warning w-100 btn-lg">
+                                Commander
+                            </a>
+                        }
+
+                        <a href="@Url.Action("Index", "Burger")" class="btn btn-outline-secondary w-100 mt-2">
+                            Continuer mes achats
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
