@@ -6,9 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configuration PostgreSQL
+// Configuration PostgreSQL AVEC LOGGING
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    
+    // ✅ LOGGING POUR VOIR LES REQUÊTES SQL
+    options.EnableSensitiveDataLogging();
+    options.LogTo(Console.WriteLine, LogLevel.Information);
+});
 
 // Configuration Session (pour panier et auth)
 builder.Services.AddDistributedMemoryCache();

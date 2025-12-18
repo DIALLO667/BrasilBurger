@@ -1,0 +1,122 @@
+@{
+    ViewData["Title"] = "Finaliser ma commande";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">🛍️ Finaliser ma commande</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="row">
+        <!-- Formulaire -->
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-3">Type de récupération</h5>
+
+                    <form method="post" asp-action="Create">
+                        <!-- Type Récupération -->
+                        <div class="mb-4">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="typeRecuperation" 
+                                       id="surPlace" value="sur_place" required>
+                                <label class="form-check-label" for="surPlace">
+                                    <strong>🍽️ Sur place</strong>
+                                    <p class="text-muted small mb-0">Consommer au restaurant</p>
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="typeRecuperation" 
+                                       id="emporter" value="emporter" required>
+                                <label class="form-check-label" for="emporter">
+                                    <strong>🥡 À emporter</strong>
+                                    <p class="text-muted small mb-0">Récupérer au restaurant</p>
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="typeRecuperation" 
+                                       id="livraison" value="livraison" required 
+                                       onchange="toggleAdresse()">
+                                <label class="form-check-label" for="livraison">
+                                    <strong>🚚 Livraison</strong>
+                                    <p class="text-muted small mb-0">Se faire livrer à domicile</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Adresse Livraison (si livraison) -->
+                        <div id="adresseSection" style="display: none;" class="mb-4">
+                            <label for="adresse" class="form-label">Adresse de livraison *</label>
+                            <textarea class="form-control" id="adresse" name="adresse" 
+                                      rows="3" placeholder="Votre adresse complète..."></textarea>
+                            <small class="text-muted">
+                                Exemple : Cité Keur Gorgui, Villa 123, Dakar
+                            </small>
+                        </div>
+
+                        <!-- Bouton Commander -->
+                        <button type="submit" class="btn btn-warning btn-lg w-100">
+                            Confirmer la commande • @ViewBag.Total.ToString("N0") FCFA
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Récapitulatif Panier -->
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-3">Récapitulatif</h5>
+
+                    @foreach (var item in ViewBag.Panier)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>@item.Quantite x @item.Nom</span>
+                            <span>@item.Total.ToString("N0") FCFA</span>
+                        </div>
+                    }
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <strong>Total</strong>
+                        <strong class="text-warning">@ViewBag.Total.ToString("N0") FCFA</strong>
+                    </div>
+
+                    <div class="alert alert-info mt-3 small">
+                        <i class="bi bi-info-circle"></i> Le paiement se fera après confirmation
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleAdresse() {
+        const livraison = document.getElementById('livraison');
+        const adresseSection = document.getElementById('adresseSection');
+        const adresseInput = document.getElementById('adresse');
+        
+        if (livraison.checked) {
+            adresseSection.style.display = 'block';
+            adresseInput.required = true;
+        } else {
+            adresseSection.style.display = 'none';
+            adresseInput.required = false;
+        }
+    }
+
+    // Écouter tous les radios
+    document.querySelectorAll('input[name="typeRecuperation"]').forEach(radio => {
+        radio.addEventListener('change', toggleAdresse);
+    });
+</script>

@@ -11,11 +11,6 @@ namespace BrasilBurger.ClientApp.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(50)]
-        [Column("numero_commande")]
-        public string NumeroCommande { get; set; } = string.Empty;
-
-        [Required]
         [Column("client_id")]
         public int ClientId { get; set; }
 
@@ -24,13 +19,13 @@ namespace BrasilBurger.ClientApp.Models
 
         [Required]
         [StringLength(20)]
-        [Column("type_consommation")]
-        public string TypeConsommation { get; set; } = string.Empty; // SUR_PLACE, EMPORTER, LIVRAISON
+        [Column("type_recuperation")]
+        public string TypeRecuperation { get; set; } = string.Empty; // sur_place, emporter, livraison
 
         [Required]
         [StringLength(20)]
-        [Column("statut")]
-        public string Statut { get; set; } = "EN_COURS"; // EN_COURS, PRETE, TERMINEE, ANNULEE
+        [Column("etat")]
+        public string Etat { get; set; } = "en_cours"; // en_cours, validee, terminee, annulee
 
         [Required]
         [Column("montant_total", TypeName = "decimal(10,2)")]
@@ -39,14 +34,11 @@ namespace BrasilBurger.ClientApp.Models
         [Column("adresse_livraison")]
         public string? AdresseLivraison { get; set; }
 
-        [Column("zone_livraison_id")]
-        public int? ZoneLivraisonId { get; set; }
+        [Column("zone_id")]
+        public int? ZoneId { get; set; }
 
         [Column("livreur_id")]
         public int? LivreurId { get; set; }
-
-        [Column("paiement_effectue")]
-        public bool PaiementEffectue { get; set; } = false;
 
         // Relations
         [ForeignKey("ClientId")]

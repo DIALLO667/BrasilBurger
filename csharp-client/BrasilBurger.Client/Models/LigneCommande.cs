@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BrasilBurger.ClientApp.Models
 {
-    [Table("ligne_commande")]
+    [Table("lignecommande")]
     public class LigneCommande
     {
         [Key]
@@ -16,14 +16,12 @@ namespace BrasilBurger.ClientApp.Models
 
         [Required]
         [StringLength(20)]
-        [Column("type_produit")]
-        public string TypeProduit { get; set; } = string.Empty; // BURGER ou MENU
+        [Column("produit_type")]
+        public string ProduitType { get; set; } = string.Empty; // "burger" ou "menu"
 
-        [Column("burger_id")]
-        public int? BurgerId { get; set; }
-
-        [Column("menu_id")]
-        public int? MenuId { get; set; }
+        [Required]
+        [Column("produit_id")]
+        public int ProduitId { get; set; }
 
         [Required]
         [Column("quantite")]
@@ -33,18 +31,13 @@ namespace BrasilBurger.ClientApp.Models
         [Column("prix_unitaire", TypeName = "decimal(10,2)")]
         public decimal PrixUnitaire { get; set; }
 
-        [Required]
-        [Column("prix_total", TypeName = "decimal(10,2)")]
-        public decimal PrixTotal { get; set; }
+
+
+        [Column("complements_ids")]
+        public string? ComplementsIds { get; set; }
 
         // Relations
         [ForeignKey("CommandeId")]
         public virtual Commande? Commande { get; set; }
-
-        [ForeignKey("BurgerId")]
-        public virtual Burger? Burger { get; set; }
-
-        [ForeignKey("MenuId")]
-        public virtual Menu? Menu { get; set; }
     }
 }

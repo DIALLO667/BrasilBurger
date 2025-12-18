@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using BrasilBurger.ClientApp.Models;
+
 namespace BrasilBurger.ClientApp.Data.Repositories
 {
     public class CommandeRepository
@@ -29,12 +30,8 @@ namespace BrasilBurger.ClientApp.Data.Repositories
 
 public async Task<Commande?> GetByIdAsync(int id)
 {
+    // VERSION SANS INCLUDE - Juste la commande
     return await _context.Commandes
-        .Include(c => c.LignesCommande!)
-            .ThenInclude(l => l.Burger)
-        .Include(c => c.LignesCommande!)
-            .ThenInclude(l => l.Menu)
-        .Include(c => c.Paiement)
         .FirstOrDefaultAsync(c => c.Id == id);
 }
 
