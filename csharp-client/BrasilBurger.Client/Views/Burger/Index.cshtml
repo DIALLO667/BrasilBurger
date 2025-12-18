@@ -1,0 +1,95 @@
+@model IEnumerable<BrasilBurger.ClientApp.Models.Burger>
+
+@{
+    ViewData["Title"] = "Nos Burgers";
+}
+
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="text-center mb-4">
+        <h1 class="display-4">🍔 Nos Burgers</h1>
+        <p class="lead text-muted">Découvrez notre sélection de burgers</p>
+    </div>
+
+    <!-- Filtres -->
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-warning">
+                Tous
+            </a>
+            <a href="@Url.Action("Index", "Burger")" class="btn btn-warning">
+                Burgers
+            </a>
+            <a href="@Url.Action("Index", "Menu")" class="btn btn-outline-warning">
+                Menus
+            </a>
+        </div>
+    </div>
+
+    <!-- Grille Burgers -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var burger in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-card">
+                    <!-- Badge Populaire (si prix > 3000) -->
+                    @if (burger.Prix > 3000)
+                    {
+                        <div class="position-absolute top-0 start-0 m-2">
+                            <span class="badge bg-warning text-dark">Populaire</span>
+                        </div>
+                    }
+
+                    <!-- Image -->
+                    @if (!string.IsNullOrEmpty(burger.Image))
+                    {
+                        <img src="@burger.Image" class="card-img-top" alt="@burger.Nom" style="height: 200px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-muted fs-1">🍔</span>
+                        </div>
+                    }
+
+                    <!-- Body -->
+                    <div class="card-body">
+                        <h5 class="card-title">@burger.Nom</h5>
+                        
+                        @if (!string.IsNullOrEmpty(burger.Description))
+                        {
+                            <p class="card-text text-muted small">
+                                @(burger.Description.Length > 80 ? burger.Description.Substring(0, 80) + "..." : burger.Description)
+                            </p>
+                        }
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5 text-warning mb-0">@burger.Prix.ToString("N0") FCFA</span>
+                            <a href="@Url.Action("Detail", "Burger", new { id = burger.Id })" 
+                               class="btn btn-warning btn-sm">
+                                <i class="bi bi-plus-circle"></i> Voir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty State -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <p class="text-muted">Aucun burger disponible pour le moment.</p>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s ease-in-out;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
