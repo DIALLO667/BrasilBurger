@@ -1,0 +1,260 @@
+@model BrasilBurger.ClientApp.Models.Commande
+
+@{
+    ViewData["Title"] = $"Commande #{Model.Id}";
+}
+
+<div class="container mt-4">
+    <!-- Bouton Retour -->
+    <a href="@Url.Action("MesCommandes", "Commande")" class="btn btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Retour à mes commandes
+    </a>
+
+    <h2 class="mb-4">Commande #@Model.Id</h2>
+
+    <div class="row">
+        <!-- Informations Commande -->
+        <div class="col-md-8">
+            <!-- Statut & Timeline -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Statut de la commande</h5>
+
+                    <div class="timeline">
+                        <div class="timeline-item @(Model.Etat == "en_cours" || Model.Etat == "validee" || Model.Etat == "terminee" ? "completed" : "")">
+                            <div class="timeline-icon">
+                                @if (Model.Etat == "en_cours" || Model.Etat == "validee" || Model.Etat == "terminee")
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-circle text-muted"></i>
+                                }
+                            </div>
+                            <div class="timeline-content">
+                                <strong>Commande reçue</strong>
+                                <p class="text-muted small mb-0">@Model.DateCommande.ToString("dd/MM/yyyy à HH:mm")</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item @(Model.Etat == "validee" || Model.Etat == "terminee" ? "completed" : Model.Etat == "en_cours" ? "active" : "")">
+                            <div class="timeline-icon">
+                                @if (Model.Etat == "validee" || Model.Etat == "terminee")
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else if (Model.Etat == "en_cours")
+                                {
+                                    <i class="bi bi-arrow-repeat text-warning"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-circle text-muted"></i>
+                                }
+                            </div>
+                            <div class="timeline-content">
+                                <strong>En préparation</strong>
+                                <p class="text-muted small mb-0">Votre commande est en cours de préparation</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item @(Model.Etat == "terminee" ? "completed" : Model.Etat == "validee" ? "active" : "")">
+                            <div class="timeline-icon">
+                                @if (Model.Etat == "terminee")
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else if (Model.Etat == "validee")
+                                {
+                                    <i class="bi bi-hourglass-split text-info"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-circle text-muted"></i>
+                                }
+                            </div>
+                            <div class="timeline-content">
+                                <strong>Prête</strong>
+                                <p class="text-muted small mb-0">Votre commande est prête</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item @(Model.Etat == "terminee" ? "completed" : "")">
+                            <div class="timeline-icon">
+                                @if (Model.Etat == "terminee")
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-circle text-muted"></i>
+                                }
+                            </div>
+                            <div class="timeline-content">
+                                <strong>
+                                    @if (Model.TypeRecuperation == "livraison")
+                                    {
+                                        <span>Livrée</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Récupérée</span>
+                                    }
+                                </strong>
+                                <p class="text-muted small mb-0">Commande terminée</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produits -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Produits commandés</h5>
+
+                    @if (Model.LignesCommande != null && Model.LignesCommande.Any())
+                    {
+                        @foreach (var ligne in Model.LignesCommande)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                <div>
+                                    <strong>@ligne.Quantite x</strong>
+                                    <span class="text-muted">
+                                        @ligne.ProduitType
+                                        #@ligne.ProduitId
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <div>@ligne.PrixUnitaire.ToString("N0") FCFA/u</div>
+                                    <strong>@(ligne.PrixUnitaire * ligne.Quantite).ToString("N0") FCFA</strong>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Aucun produit</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Récapitulatif -->
+        <div class="col-md-4">
+            <!-- Infos -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Informations</h6>
+
+                    <div class="mb-2">
+                        <strong>Type</strong><br>
+                        @if (Model.TypeRecuperation == "sur_place")
+                        {
+                            <span>🍽️ Sur place</span>
+                        }
+                        else if (Model.TypeRecuperation == "emporter")
+                        {
+                            <span>🥡 À emporter</span>
+                        }
+                        else
+                        {
+                            <span>🚚 Livraison</span>
+                        }
+                    </div>
+
+                    @if (Model.TypeRecuperation == "livraison" && !string.IsNullOrEmpty(Model.AdresseLivraison))
+                    {
+                        <div class="mb-2">
+                            <strong>Adresse</strong><br>
+                            <span class="text-muted">@Model.AdresseLivraison</span>
+                        </div>
+                    }
+
+                    <div>
+                        <strong>Date</strong><br>
+                        <span class="text-muted">@Model.DateCommande.ToString("dd/MM/yyyy à HH:mm")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="mb-3">Total</h6>
+                    <h3 class="text-warning mb-0">@Model.MontantTotal.ToString("N0") FCFA</h3>
+                </div>
+            </div>
+
+            <!-- Paiement -->
+            @if (Model.Paiement != null)
+            {
+                <div class="card shadow-sm bg-success text-white">
+                    <div class="card-body">
+                        <h6 class="mb-2">
+                            <i class="bi bi-check-circle"></i> Payée
+                        </h6>
+                        <p class="small mb-0">
+                            @(Model.Paiement.Methode == "wave" ? "Wave" : "Orange Money")<br>
+                            <code class="text-white">@Model.Paiement.ReferenceTransaction</code>
+                        </p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <a href="@Url.Action("Index", "Paiement", new { commandeId = Model.Id })" 
+                   class="btn btn-warning w-100 btn-lg">
+                    <i class="bi bi-credit-card"></i> Payer maintenant
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e0e0e0;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+    }
+
+    .timeline-icon {
+        position: absolute;
+        left: -24px;
+        width: 24px;
+        height: 24px;
+        background: white;
+    }
+
+    .timeline-icon i {
+        font-size: 24px;
+    }
+
+    .timeline-content {
+        padding-left: 10px;
+    }
+
+    .timeline-item.completed .timeline-icon i {
+        color: #198754 !important;
+    }
+
+    .timeline-item.active .timeline-icon i {
+        color: #ffc107 !important;
+    }
+</style>
