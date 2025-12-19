@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Brasil Burger</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/brasil.css" />
+</head>
+<body>
+    <div class="brasil-layout">
+        <!-- Sidebar -->
+        <aside class="brasil-sidebar">
+            <!-- Logo -->
+            <div class="brasil-logo">
+                <img src="~/images/brasilBurger.jpeg" alt="Brasil Burger">
+            </div>
+
+            <!-- Menu -->
+            <nav>
+                <ul class="brasil-menu">
+                    <li class="brasil-menu-item">
+                        <a href="@Url.Action("Index", "Home")" class="brasil-menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")">
+                            <i class="bi bi-house-door brasil-menu-icon"></i>
+                            <span>Accueil</span>
+                        </a>
+                    </li>
+                    <li class="brasil-menu-item">
+                        <a href="@Url.Action("MesCommandes", "Commande")" class="brasil-menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Commande" ? "active" : "")">
+                            <i class="bi bi-receipt brasil-menu-icon"></i>
+                            <span>Commandes</span>
+                        </a>
+                    </li>
+                    <li class="brasil-menu-item">
+                        <a href="@Url.Action("Index", "Panier")" class="brasil-menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Panier" ? "active" : "")">
+                            <i class="bi bi-cart brasil-menu-icon"></i>
+                            <span>Panier</span>
+                            @{
+                                var panierCount = 0;
+                                try
+                                {
+                                    var panierJson = Context.Session.GetString("Panier");
+                                    if (!string.IsNullOrEmpty(panierJson))
+                                    {
+                                        var panier = System.Text.Json.JsonSerializer.Deserialize<List<BrasilBurger.ClientApp.Models.PanierItem>>(panierJson);
+                                        panierCount = panier?.Sum(p => p.Quantite) ?? 0;
+                                    }
+                                }
+                                catch { }
+                                
+                                if (panierCount > 0)
+                                {
+                                    <span class="brasil-menu-badge">@panierCount</span>
+                                }
+                            }
+                        </a>
+                    </li>
+                    <li class="brasil-menu-item">
+                        <a href="@Url.Action("Index", "Profil")" class="brasil-menu-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Profil" ? "active" : "")">
+                            <i class="bi bi-person brasil-menu-icon"></i>
+                            <span>Profil</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Content -->
+        <main class="brasil-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

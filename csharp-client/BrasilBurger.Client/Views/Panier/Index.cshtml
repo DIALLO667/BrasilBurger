@@ -2,152 +2,212 @@
 
 @{
     ViewData["Title"] = "Mon Panier";
+    Layout = "~/Views/Shared/_BrasilLayout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">🛒 Mon Panier</h2>
+<style>
+.panier-container {
+    display: flex;
+    gap: 32px;
+}
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
+.panier-items {
+    flex: 1;
+}
 
-    @if (!Model.Any())
-    {
-        <!-- Panier Vide -->
-        <div class="text-center py-5">
-            <div class="display-1 mb-3">🛒</div>
-            <h4 class="text-muted">Votre panier est vide</h4>
-            <p class="text-muted">Ajoutez des produits pour commencer !</p>
-            <a href="@Url.Action("Index", "Burger")" class="btn btn-warning mt-3">
-                Voir les Burgers
-            </a>
-        </div>
-    }
-    else
-    {
-        <!-- Liste Produits -->
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        @for (int i = 0; i < Model.Count; i++)
-                        {
-                            var item = Model[i];
-                            <div class="row align-items-center mb-3 pb-3 @(i < Model.Count - 1 ? "border-bottom" : "")">
-                                <!-- Image -->
-                                <div class="col-md-2">
-                                    @if (!string.IsNullOrEmpty(item.Image))
-                                    {
-                                        <img src="@item.Image" class="img-fluid rounded" alt="@item.Nom">
-                                    }
-                                    else
-                                    {
-                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 80px;">
-                                            <span class="fs-2">@(item.Type == "burger" ? "🍔" : "🍔🥤🍟")</span>
-                                        </div>
-                                    }
-                                </div>
+.panier-item {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
 
-                                <!-- Info Produit -->
-                                <div class="col-md-4">
-                                    <h6 class="mb-1">@item.Nom</h6>
-                                    <small class="text-muted">
-                                        @if (item.Type == "menu")
-                                        {
-                                            <span>Menu : @item.CompositionBurger + @item.CompositionBoisson + @item.CompositionFrites</span>
-                                        }
-                                        else
-                                        {
-                                            <span>Burger</span>
-                                        }
-                                    </small>
-                                    <div class="mt-1">
-                                        <span class="text-warning fw-bold">@item.Prix.ToString("N0") FCFA</span>
-                                    </div>
-                                </div>
+.panier-item-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+}
 
-                                <!-- Quantité -->
-                                <div class="col-md-3">
-                                    <form method="post" asp-action="UpdateQuantite" class="d-flex align-items-center">
-                                        <input type="hidden" name="index" value="@i">
-                                        <button type="submit" name="quantite" value="@(item.Quantite - 1)" class="btn btn-sm btn-outline-secondary">-</button>
-                                        <input type="number" class="form-control form-control-sm text-center mx-2" value="@item.Quantite" readonly style="width: 60px;">
-                                        <button type="submit" name="quantite" value="@(item.Quantite + 1)" class="btn btn-sm btn-outline-secondary">+</button>
-                                    </form>
-                                </div>
+.panier-item-info {
+    flex: 1;
+}
 
-                                <!-- Total + Retirer -->
-                                <div class="col-md-3 text-end">
-                                    <div class="fw-bold mb-2">@item.Total.ToString("N0") FCFA</div>
-                                    <form method="post" asp-action="Retirer" class="d-inline">
-                                        <input type="hidden" name="index" value="@i">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="bi bi-trash"></i> Retirer
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        }
+.panier-item-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
 
-                        <!-- Vider Panier -->
-                        <div class="text-end mt-3">
-                            <form method="post" asp-action="Vider" class="d-inline">
-                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Vider le panier ?')">
-                                    Vider le panier
-                                </button>
-                            </form>
-                        </div>
+.panier-item-price {
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.panier-qty {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.panier-qty-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.panier-qty-btn:hover {
+    background: #F9FAFB;
+}
+
+.panier-qty-value {
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+}
+
+.panier-item-total {
+    font-size: 20px;
+    font-weight: 700;
+    color: #F59E0B;
+}
+
+.panier-item-delete {
+    color: #EF5350;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.panier-summary {
+    width: 350px;
+    position: sticky;
+    top: 32px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.summary-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #6B7280;
+}
+
+.summary-total {
+    font-size: 28px;
+    font-weight: 700;
+    color: #F59E0B;
+}
+
+.btn-validate {
+    width: 100%;
+    background: #FCD34D;
+    color: black;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-validate:hover {
+    background: #F59E0B;
+}
+</style>
+
+<h1 style="font-size: 32px; font-weight: 700; margin-bottom: 32px;">Mon Panier</h1>
+
+@if (!Model.Any())
+{
+    <div style="text-align: center; padding: 80px 20px;">
+        <div style="font-size: 64px; margin-bottom: 16px;">🛒</div>
+        <h3 style="color: #6B7280; margin-bottom: 8px;">Votre panier est vide</h3>
+        <p style="color: #9CA3AF;">Ajoutez des produits pour commencer !</p>
+        <a href="@Url.Action("Index", "Home")" class="brasil-hero-btn" style="margin-top: 24px;">
+            Découvrir les produits
+        </a>
+    </div>
+}
+else
+{
+    <div class="panier-container">
+        <!-- Items -->
+        <div class="panier-items">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var item = Model[i];
+                <div class="panier-item">
+                    <img src="@(item.Image ?? "https://via.placeholder.com/80")" class="panier-item-img" alt="@item.Nom">
+                    
+                    <div class="panier-item-info">
+                        <div class="panier-item-name">@item.Nom</div>
+                        <div class="panier-item-price">@item.Prix.ToString("N0") FCFA</div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Récapitulatif -->
-            <div class="col-md-4">
-                <div class="card sticky-top" style="top: 20px;">
-                    <div class="card-body">
-                        <h5 class="mb-3">Récapitulatif</h5>
-                        
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Sous-total (@Model.Sum(m => m.Quantite) produits)</span>
-                            <span>@ViewBag.Total.ToString("N0") FCFA</span>
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
-                            <span>Frais de livraison</span>
-                            <span class="text-muted">À calculer</span>
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-4">
-                            <strong>Total</strong>
-                            <strong class="text-warning fs-4">@ViewBag.Total.ToString("N0") FCFA</strong>
-                        </div>
-
-                        @if (Context.Session.GetInt32("ClientId") == null)
-                        {
-                            <div class="alert alert-info small">
-                                <i class="bi bi-info-circle"></i> Connectez-vous pour commander
-                            </div>
-                            <a href="@Url.Action("Login", "Auth")" class="btn btn-warning w-100">
-                                Se connecter
-                            </a>
-                        }
-                        else
-                        {
-                            <a href="@Url.Action("Checkout", "Commande")" class="btn btn-warning w-100 btn-lg">
-                                Commander
-                            </a>
-                        }
-
-                        <a href="@Url.Action("Index", "Burger")" class="btn btn-outline-secondary w-100 mt-2">
-                            Continuer mes achats
-                        </a>
+                    <div class="panier-qty">
+                        <form method="post" asp-action="UpdateQuantite" style="display: inline;">
+                            <input type="hidden" name="index" value="@i">
+                            <button type="submit" name="quantite" value="@(item.Quantite - 1)" class="panier-qty-btn">−</button>
+                        </form>
+                        <span class="panier-qty-value">@item.Quantite</span>
+                        <form method="post" asp-action="UpdateQuantite" style="display: inline;">
+                            <input type="hidden" name="index" value="@i">
+                            <button type="submit" name="quantite" value="@(item.Quantite + 1)" class="panier-qty-btn">+</button>
+                        </form>
                     </div>
+
+                    <div class="panier-item-total">@item.Total.ToString("N0") FCFA</div>
+
+                    <form method="post" asp-action="Retirer" style="display: inline;">
+                        <input type="hidden" name="index" value="@i">
+                        <button type="submit" class="panier-item-delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
                 </div>
+            }
+        </div>
+
+        <!-- Summary -->
+        <div class="panier-summary">
+            <div class="summary-card">
+                <h3 class="summary-title">Résumé</h3>
+                
+                <div class="summary-line">
+                    <span>Sous-total</span>
+                    <span class="summary-total">@ViewBag.Total.ToString("N0") FCFA</span>
+                </div>
+
+                <button class="btn-validate" onclick="window.location.href='@Url.Action("Checkout", "Commande")'">
+                    Valider la commande
+                </button>
             </div>
         </div>
-    }
-</div>
+    </div>
+}

@@ -170,3 +170,4 @@
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/BrasilBurger.Client.pdb
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/BrasilBurger.Client.genruntimeconfig.cache
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/ref/BrasilBurger.Client.dll
+/Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/ajh1bwlpve-{0}-cuafcvfz7j-cuafcvfz7j.gz

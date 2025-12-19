@@ -1,419 +1,183 @@
-﻿@model IEnumerable<dynamic>
+﻿@model dynamic
 
 @{
     ViewData["Title"] = "Accueil";
-    Layout = null; // On va créer un layout custom
+    Layout = "~/Views/Shared/_BrasilLayout.cshtml";
+    
+    // Récupérer les burgers depuis ViewBag
+    var burgers = ViewBag.Burgers as List<BrasilBurger.ClientApp.Models.Burger> ?? new List<BrasilBurger.ClientApp.Models.Burger>();
+    var menus = ViewBag.Menus as List<BrasilBurger.ClientApp.Models.Menu> ?? new List<BrasilBurger.ClientApp.Models.Menu>();
+    var complements = ViewBag.Complements as List<BrasilBurger.ClientApp.Models.Complement> ?? new List<BrasilBurger.ClientApp.Models.Complement>();
+    
+    var allProducts = new List<dynamic>();
+    allProducts.AddRange(burgers.Select(b => new { Type = "burger", Id = b.Id, Nom = b.Nom, Prix = b.Prix, Image = b.Image, Description = b.Description }));
+    allProducts.AddRange(menus.Select(m => new { Type = "menu", Id = m.Id, Nom = m.Nom, Prix = m.PrixCalcule, Image = m.Image, Description = "Menu complet" }));
+    allProducts.AddRange(complements.Select(c => new { Type = "complement", Id = c.Id, Nom = c.Nom, Prix = c.Prix, Image = c.Image, Description = c.Type }));
 }
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brasil Burger - Accueil</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --primary: #FFD23F;
-            --dark: #1E1E1E;
-            --sidebar-width: 200px;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+.right-sidebar {
+    position: fixed;
+    right: 32px;
+    top: 32px;
+    width: 300px;
+    z-index: 100;
+}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #F5F5F5;
-        }
+@@media (max-width: 1400px) {
+    .right-sidebar {
+        display: none;
+    }
+}
+</style>
 
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: white;
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
+<!-- Hero Section -->
+<section class="brasil-hero">
+    <h1 class="brasil-hero-title">Les meilleurs burgers de Dakar</h1>
+    <button class="brasil-hero-btn" onclick="scrollToProducts()">Commander maintenant</button>
+</section>
 
-        .sidebar-logo {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 30px;
-            display: block;
-        }
+<!-- Search Bar -->
+<div class="brasil-search">
+    <i class="bi bi-search brasil-search-icon"></i>
+    <input type="text" id="searchInput" class="brasil-search-input" placeholder="Recherchez un produit ..." onkeyup="filterProducts()">
+</div>
 
-        .sidebar-menu {
-            list-style: none;
-        }
+<!-- Categories -->
+<div style="margin-bottom: 16px;">
+    <strong style="font-size: 18px;">Catégories</strong>
+</div>
+<div class="brasil-categories">
+    <button class="brasil-category-pill active" onclick="filterCategory('tous')">
+        <span>👍</span>
+        <span>Tous</span>
+    </button>
+    <button class="brasil-category-pill" onclick="filterCategory('burger')">
+        <span>🍔</span>
+        <span>Burgers</span>
+    </button>
+    <button class="brasil-category-pill" onclick="filterCategory('menu')">
+        <span>📦</span>
+        <span>Menus</span>
+    </button>
+    <button class="brasil-category-pill" onclick="filterCategory('complement')">
+        <span>🥤</span>
+        <span>Compléments</span>
+    </button>
+</div>
 
-        .sidebar-menu li {
-            margin-bottom: 10px;
-        }
+<!-- Section Header -->
+<div class="brasil-section-header" id="products-section">
+    <h2 class="brasil-section-title">Tous les produits</h2>
+    <span class="brasil-section-count" id="productCount">@allProducts.Count produit(s)</span>
+</div>
 
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            text-decoration: none;
-            color: #333;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .sidebar-menu a.active {
-            background: var(--primary);
-            color: var(--dark);
-            font-weight: 600;
-        }
-
-        .sidebar-menu a:hover {
-            background: #f0f0f0;
-        }
-
-        .sidebar-menu i {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 30px 40px;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-                        url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200') center/cover;
-            border-radius: 20px;
-            padding: 60px;
-            color: white;
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-            height: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .hero-section h1 {
-            font-size: 48px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .btn-order {
-            background: var(--primary);
-            color: var(--dark);
-            padding: 15px 40px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            display: inline-block;
-            text-decoration: none;
-            width: fit-content;
-        }
-
-        .btn-order:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 210, 63, 0.4);
-        }
-
-        /* Search Bar */
-        .search-bar {
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .search-bar input {
-            width: 100%;
-            padding: 15px 50px;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            font-size: 14px;
-        }
-
-        .search-bar i {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-
-        /* Categories */
-        .categories {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .category-btn {
-            padding: 10px 20px;
-            border: none;
-            background: white;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .category-btn.active {
-            background: var(--primary);
-            color: var(--dark);
-            font-weight: 600;
-        }
-
-        .category-btn:hover {
-            background: #f0f0f0;
-        }
-
-        /* Products Grid */
-        .products-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .product-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .product-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--primary);
-            color: var(--dark);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .product-body {
-            padding: 15px;
-        }
-
-        .product-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .product-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .product-price {
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        .btn-add {
-            background: var(--primary);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .btn-add:hover {
-            transform: scale(1.1);
-        }
-
-        /* User Menu */
-        .user-menu {
-            position: fixed;
-            top: 20px;
-            right: 30px;
-            z-index: 1001;
-        }
-
-        .user-menu .dropdown-toggle {
-            background: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <img src="https://via.placeholder.com/100x100/FFD23F/1E1E1E?text=BRASIL" alt="Brasil Burger" class="sidebar-logo">
-        
-        <ul class="sidebar-menu">
-            <li>
-                <a href="@Url.Action("Index", "Home")" class="active">
-                    <i class="bi bi-house-door"></i>
-                    Accueil
-                </a>
-            </li>
-            <li>
-                <a href="@Url.Action("Index", "Commande")">
-                    <i class="bi bi-receipt"></i>
-                    Commandes
-                </a>
-            </li>
-            <li>
-                <a href="@Url.Action("Index", "Panier")">
-                    <i class="bi bi-cart"></i>
-                    Panier
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bi bi-person"></i>
-                    Profil
-                </a>
-            </li>
-        </ul>
+<!-- Sidebar "Mes commandes" (fixe à droite) -->
+@* <div class="right-sidebar">
+    <div class="brasil-card">
+        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Mes commandes</h3>
+        <a href="@Url.Action("MesCommandes", "Commande")">
+            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&h=200&fit=crop" 
+                 style="width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin-bottom: 12px;" 
+                 alt="Burger">
+        </a>
+        <p style="color: #000; font-weight: 600; margin-bottom: 4px;">Classic Burger</p>
+        <p style="color: #F59E0B; font-weight: 700; font-size: 18px;">2500 FCFA</p>
+        <a href="@Url.Action("MesCommandes", "Commande")" style="display: block; margin-top: 12px; text-align: center; color: #6B7280; text-decoration: none; font-size: 14px;">
+            Voir toutes mes commandes →
+        </a>
     </div>
+</div> *@
 
-    <!-- User Menu -->
-    @if (Context.Session.GetInt32("ClientId") != null)
+<!-- Products Grid -->
+<div class="brasil-products-grid" id="productsGrid">
+    @foreach (var product in allProducts)
     {
-        <div class="user-menu">
-            <div class="dropdown">
-                <button class="dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle"></i>
-                    <span>@Context.Session.GetString("ClientPrenom")</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="@Url.Action("Logout", "Auth")">Déconnexion</a></li>
-                </ul>
+        var isPopular = product.Prix > 3000;
+        
+        <div class="brasil-product-card" data-type="@product.Type" data-name="@product.Nom.ToLower()">
+            @if (isPopular)
+            {
+                <span class="brasil-product-badge">Populaire</span>
+            }
+            
+            @if (!string.IsNullOrEmpty(product.Image))
+            {
+                <img src="@product.Image" class="brasil-product-image" alt="@product.Nom">
+            }
+            else
+            {
+                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop" class="brasil-product-image" alt="@product.Nom">
+            }
+            
+            <div class="brasil-product-body">
+                <h3 class="brasil-product-name">@product.Nom</h3>
+                <div class="brasil-product-footer">
+                    <span class="brasil-product-price">@product.Prix.ToString("N0") FCFA</span>
+                    @if (product.Type == "burger")
+                    {
+                        <button class="brasil-btn-add" onclick="window.location.href='@Url.Action("Detail", "Burger", new { id = product.Id })'">+</button>
+                    }
+                    else if (product.Type == "menu")
+                    {
+                        <button class="brasil-btn-add" onclick="window.location.href='@Url.Action("Detail", "Menu", new { id = product.Id })'">+</button>
+                    }
+                    else
+                    {
+                        <form method="post" action="@Url.Action("Ajouter", "Panier")" style="display: inline;">
+                            <input type="hidden" name="type" value="@product.Type">
+                            <input type="hidden" name="id" value="@product.Id">
+                            <input type="hidden" name="quantite" value="1">
+                            <button type="submit" class="brasil-btn-add">+</button>
+                        </form>
+                    }
+                </div>
             </div>
         </div>
     }
+</div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <h1>Les meilleurs burgers<br>de Dakar</h1>
-            <a href="@Url.Action("Index", "Burger")" class="btn-order">
-                Commander maintenant
-            </a>
-        </div>
+<script>
+let currentCategory = 'tous';
 
-        <!-- Search Bar -->
-        <div class="search-bar">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Recherchez un produit ...">
-        </div>
+function scrollToProducts() {
+    document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' });
+}
 
-        <!-- Categories -->
-        <h5 class="mb-3">Catégories</h5>
-        <div class="categories">
-            <button class="category-btn active">
-                <span>👍</span> Tous
-            </button>
-            <a href="@Url.Action("Index", "Burger")" class="category-btn" style="text-decoration: none;">
-                <span>🍔</span> Burgers
-            </a>
-            <a href="@Url.Action("Index", "Menu")" class="category-btn" style="text-decoration: none;">
-                <span>📦</span> Menus
-            </a>
-            <button class="category-btn">
-                <span>🍟</span> Compléments
-            </button>
-        </div>
+function filterCategory(category) {
+    currentCategory = category;
+    
+    // Update active button
+    document.querySelectorAll('.brasil-category-pill').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.closest('.brasil-category-pill').classList.add('active');
+    
+    // Filter products
+    filterProducts();
+}
 
-        <!-- Products Section -->
-        <div class="products-header">
-            <h5 class="mb-0">Tous les produits</h5>
-            <span class="text-muted">12 produit(s)</span>
-        </div>
-
-        <div class="products-grid">
-            <!-- Product Card Example -->
-            <div class="product-card" onclick="window.location.href='@Url.Action("Detail", "Burger", new { id = 1 })'">
-                <span class="product-badge">Populaire</span>
-                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400" class="product-image" alt="Classic Burger">
-                <div class="product-body">
-                    <div class="product-title">Classic Burger</div>
-                    <div class="product-footer">
-                        <span class="product-price">2500 FCFA</span>
-                        <button class="btn-add" onclick="event.stopPropagation();">
-                            <i class="bi bi-plus" style="font-size: 20px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Répéter pour autres produits -->
-            <div class="product-card" onclick="window.location.href='@Url.Action("Detail", "Burger", new { id = 2 })'">
-                <span class="product-badge">Populaire</span>
-                <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=400" class="product-image" alt="Double Cheese">
-                <div class="product-body">
-                    <div class="product-title">Double cheese</div>
-                    <div class="product-footer">
-                        <span class="product-price">3500 FCFA</span>
-                        <button class="btn-add" onclick="event.stopPropagation();">
-                            <i class="bi bi-plus" style="font-size: 20px;"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ajoutez plus de produits ici -->
-        </div>
-    </div>
-
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+function filterProducts() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.brasil-product-card');
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+        const type = card.dataset.type;
+        const name = card.dataset.name;
+        
+        const matchesCategory = currentCategory === 'tous' || type === currentCategory;
+        const matchesSearch = searchTerm === '' || name.includes(searchTerm);
+        
+        if (matchesCategory && matchesSearch) {
+            card.style.display = 'block';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Update count
+    document.getElementById('productCount').textContent = visibleCount + ' produit(s)';
+}
+</script>

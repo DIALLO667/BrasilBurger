@@ -1,32 +1,55 @@
 using Microsoft.AspNetCore.Mvc;
+using BrasilBurger.ClientApp.Data;
+using BrasilBurger.ClientApp.Data.Repositories;
 using BrasilBurger.ClientApp.Models;
-using System.Diagnostics;
 
 namespace BrasilBurger.ClientApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly BurgerRepository _burgerRepository;
+        private readonly MenuRepository _menuRepository;
+        private readonly ComplementRepository _complementRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationDbContext context)
         {
-            _logger = logger;
+            _burgerRepository = new BurgerRepository(context);
+            _menuRepository = new MenuRepository(context);
+            _complementRepository = new ComplementRepository(context);
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            try
+            {
+                // Récupérer tous les produits
+                var burgers = await _burgerRepository.GetAvailableAsync();
+                var menus = await _menuRepository.GetAllWithDetailsAsync();
+                var complements = await _complementRepository.GetAllAsync();
+
+                // Passer les données à la vue
+                ViewBag.Burgers = burgers ?? new List<Burger>();
+                ViewBag.Menus = menus ?? new List<Menu>();
+                ViewBag.Complements = complements ?? new List<Complement>();
+
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR in Home.Index: {ex.Message}");
+                
+                // Retourner des listes vides en cas d'erreur
+                ViewBag.Burgers = new List<Burger>();
+                ViewBag.Menus = new List<Menu>();
+                ViewBag.Complements = new List<Complement>();
+                
+                return View();
+            }
         }
 
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

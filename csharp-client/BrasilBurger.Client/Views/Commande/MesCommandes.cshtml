@@ -2,162 +2,132 @@
 
 @{
     ViewData["Title"] = "Mes Commandes";
+    Layout = "~/Views/Shared/_BrasilLayout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">📋 Mes Commandes</h2>
+<style>
+.commande-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 16px;
+}
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
+.commande-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
 
-    @if (!Model.Any())
+.commande-id {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.commande-details {
+    color: #6B7280;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.commande-items {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.commande-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.commande-price {
+    font-size: 24px;
+    font-weight: 700;
+    color: #F59E0B;
+}
+
+.btn-voir-details {
+    background: transparent;
+    border: 1px solid #E5E7EB;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.btn-voir-details:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+}
+</style>
+
+<h1 style="font-size: 32px; font-weight: 700; margin-bottom: 32px;">Mes commandes</h1>
+
+@if (!Model.Any())
+{
+    <div style="text-align: center; padding: 80px 20px;">
+        <div style="font-size: 64px; margin-bottom: 16px;">📦</div>
+        <h3 style="color: #6B7280; margin-bottom: 8px;">Aucune commande</h3>
+        <p style="color: #9CA3AF;">Vous n'avez pas encore passé de commande</p>
+        <a href="@Url.Action("Index", "Home")" class="brasil-hero-btn" style="margin-top: 24px;">
+            Commander maintenant
+        </a>
+    </div>
+}
+else
+{
+    @foreach (var commande in Model)
     {
-        <!-- Empty State -->
-        <div class="text-center py-5">
-            <div class="display-1 mb-3">📦</div>
-            <h4 class="text-muted">Aucune commande</h4>
-            <p class="text-muted">Vous n'avez pas encore passé de commande</p>
-            <a href="@Url.Action("Index", "Burger")" class="btn btn-warning mt-3">
-                Commander maintenant
-            </a>
-        </div>
-    }
-    else
-    {
-        <!-- Filtres Statut -->
-        <div class="mb-4">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-secondary active" onclick="filterCommandes(event, 'tous')">
-                    Toutes (@Model.Count)
-                </button>
-                <button type="button" class="btn btn-outline-info" onclick="filterCommandes(event, 'en_cours')">
-                    En cours (@Model.Count(c => c.Etat == "en_cours"))
-                </button>
-                <button type="button" class="btn btn-outline-success" onclick="filterCommandes(event, 'validee')">
-                    Validées (@Model.Count(c => c.Etat == "validee"))
-                </button>
-                <button type="button" class="btn btn-outline-dark" onclick="filterCommandes(event, 'terminee')">
-                    Terminées (@Model.Count(c => c.Etat == "terminee"))
-                </button>
+        <div class="commande-card">
+            <div class="commande-header">
+                <div>
+                    <span class="commande-id">Commande #@commande.Id</span>
+                    @if (commande.Etat == "en_cours")
+                    {
+                        <span class="brasil-badge brasil-badge-orange" style="margin-left: 12px;">En préparation</span>
+                    }
+                    else if (commande.Etat == "validee")
+                    {
+                        <span class="brasil-badge brasil-badge-green" style="margin-left: 12px;">Validée</span>
+                    }
+                    else if (commande.Etat == "terminee")
+                    {
+                        <span class="brasil-badge brasil-badge-gray" style="margin-left: 12px;">Terminée</span>
+                    }
+                </div>
+                <span style="color: #6B7280; font-size: 14px;">@commande.DateCommande.ToString("dd déc., HH:mm")</span>
+            </div>
+
+            <div class="commande-details">
+                @if (commande.LignesCommande != null && commande.LignesCommande.Any())
+                {
+                    foreach (var ligne in commande.LignesCommande.Take(2))
+                    {
+                        <div>@ligne.Quantite x @(ligne.ProduitType == "burger" ? "Burger" : ligne.ProduitType == "menu" ? "Menu" : "Complément")</div>
+                    }
+                    @if (commande.LignesCommande.Count > 2)
+                    {
+                        <div>+ @(commande.LignesCommande.Count - 2) autre(s)</div>
+                    }
+                }
+                else
+                {
+                    <div>Aucun produit</div>
+                }
+            </div>
+
+            <div class="commande-footer">
+                <span class="commande-price">@commande.MontantTotal.ToString("N0") FCFA</span>
+                <a href="@Url.Action("Confirmation", "Commande", new { id = commande.Id })" class="btn-voir-details">
+                    Voir détails →
+                </a>
             </div>
         </div>
-
-        <!-- Liste Commandes -->
-        <div class="row row-cols-1 g-4">
-            @foreach (var commande in Model)
-            {
-                <div class="col commande-item" data-etat="@commande.Etat">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <!-- Infos Commande -->
-                                <div class="col-md-6">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <h5 class="mb-0 me-3">Commande #@commande.Id</h5>
-                                        
-                                        @if (commande.Etat == "en_cours")
-                                        {
-                                            <span class="badge bg-info">⏳ En cours</span>
-                                        }
-                                        else if (commande.Etat == "validee")
-                                        {
-                                            <span class="badge bg-success">✅ Validée</span>
-                                        }
-                                        else if (commande.Etat == "terminee")
-                                        {
-                                            <span class="badge bg-dark">✓ Terminée</span>
-                                        }
-                                        else if (commande.Etat == "annulee")
-                                        {
-                                            <span class="badge bg-danger">✗ Annulée</span>
-                                        }
-                                    </div>
-
-                                    <p class="text-muted mb-2">
-                                        <i class="bi bi-calendar"></i> 
-                                        @commande.DateCommande.ToString("dd/MM/yyyy à HH:mm")
-                                    </p>
-
-                                    <p class="mb-2">
-                                        @if (commande.TypeRecuperation == "sur_place")
-                                        {
-                                            <span class="badge bg-light text-dark">🍽️ Sur place</span>
-                                        }
-                                        else if (commande.TypeRecuperation == "emporter")
-                                        {
-                                            <span class="badge bg-light text-dark">🥡 À emporter</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-light text-dark">🚚 Livraison</span>
-                                        }
-                                    </p>
-
-                                    @if (commande.LignesCommande != null && commande.LignesCommande.Any())
-                                    {
-                                        <p class="text-muted small mb-0">
-                                            @commande.LignesCommande.Count produit(s) • 
-                                            @commande.LignesCommande.Sum(l => l.Quantite) article(s)
-                                        </p>
-                                    }
-                                </div>
-
-                                <!-- Montant & Actions -->
-                                <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                                    <h4 class="text-warning mb-3">@commande.MontantTotal.ToString("N0") FCFA</h4>
-
-                                    <div class="d-flex flex-column flex-md-row gap-2 justify-content-md-end">
-                                        <!-- Bouton Détails -->
-                                        <a href="@Url.Action("Detail", "Commande", new { id = commande.Id })" 
-                                           class="btn btn-outline-secondary btn-sm">
-                                            <i class="bi bi-eye"></i> Détails
-                                        </a>
-
-                                        <!-- Bouton Payer (si non payée) -->
-                                        @if (commande.Paiement == null)
-                                        {
-                                            <a href="@Url.Action("Index", "Paiement", new { commandeId = commande.Id })" 
-                                               class="btn btn-warning btn-sm">
-                                                <i class="bi bi-credit-card"></i> Payer
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-success align-self-center">
-                                                <i class="bi bi-check-circle"></i> Payée
-                                            </span>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
     }
-</div>
-
-<script>
-    function filterCommandes(event, etat) {
-        const items = document.querySelectorAll('.commande-item');
-        const buttons = document.querySelectorAll('.btn-group button');
-
-        // Reset active buttons
-        buttons.forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-
-        items.forEach(item => {
-            if (etat === 'tous' || item.dataset.etat === etat) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-</script>
+}

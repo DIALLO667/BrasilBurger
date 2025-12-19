@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using BrasilBurger.ClientApp.Models;
+
 namespace BrasilBurger.ClientApp.Data.Repositories
 {
     public class ComplementRepository
@@ -23,6 +24,15 @@ namespace BrasilBurger.ClientApp.Data.Repositories
         {
             return await _context.Complements
                 .FirstOrDefaultAsync(c => c.Id == id && !c.Archive);
+        }
+
+        // ✅ AJOUTER CETTE MÉTHODE
+        public async Task<List<Complement>> GetAllAsync()
+        {
+            return await _context.Complements
+                .Where(c => !c.Archive)
+                .OrderBy(c => c.Nom)
+                .ToListAsync();
         }
     }
 }

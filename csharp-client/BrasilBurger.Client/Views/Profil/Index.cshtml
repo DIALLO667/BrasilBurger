@@ -1,0 +1,171 @@
+@{
+    ViewData["Title"] = "Mon Profil";
+    Layout = "~/Views/Shared/_BrasilLayout.cshtml";
+    
+    var nom = Context.Session.GetString("Nom") ?? "Utilisateur";
+    var prenom = Context.Session.GetString("Prenom") ?? "";
+    var email = Context.Session.GetString("Email") ?? "email@exemple.com";
+}
+
+<style>
+.profil-container {
+    max-width: 900px;
+}
+
+.profil-header {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.profil-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #FCD34D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 40px;
+}
+
+.profil-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.profil-email {
+    color: #6B7280;
+}
+
+.profil-menu-item {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: black;
+    transition: all 0.2s;
+}
+
+.profil-menu-item:hover {
+    background: #F9FAFB;
+    transform: translateX(4px);
+}
+
+.profil-menu-item i {
+    color: #6B7280;
+}
+
+.profil-menu-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profil-menu-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.btn-logout {
+    background: white;
+    border: 1px solid #EF5350;
+    color: #EF5350;
+    border-radius: 12px;
+    padding: 16px 24px;
+    width: 100%;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-logout:hover {
+    background: #EF5350;
+    color: white;
+}
+</style>
+
+<div class="profil-container">
+    <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 32px;">Mon Profil</h1>
+
+    <!-- Header avec avatar -->
+    <div class="profil-header">
+        <div class="profil-avatar">
+            <i class="bi bi-person"></i>
+        </div>
+        <div class="profil-name">@prenom @nom</div>
+        <div class="profil-email">@email</div>
+        <div style="color: #6B7280; font-size: 14px; margin-top: 4px;">
+            <i class="bi bi-telephone"></i> 77 123 45 67
+        </div>
+    </div>
+
+    <!-- Menu Options -->
+    <a href="#" class="profil-menu-item">
+        <div class="profil-menu-left">
+            <div class="profil-menu-icon">
+                <i class="bi bi-person"></i>
+            </div>
+            <strong>Mes informations</strong>
+        </div>
+        <i class="bi bi-chevron-right"></i>
+    </a>
+
+    <a href="#" class="profil-menu-item">
+        <div class="profil-menu-left">
+            <div class="profil-menu-icon">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <strong>Adresses de livraison</strong>
+        </div>
+        <i class="bi bi-chevron-right"></i>
+    </a>
+
+    <a href="#" class="profil-menu-item">
+        <div class="profil-menu-left">
+            <div class="profil-menu-icon">
+                <i class="bi bi-gear"></i>
+            </div>
+            <strong>Paramètres</strong>
+        </div>
+        <i class="bi bi-chevron-right"></i>
+    </a>
+
+    <a href="#" class="profil-menu-item">
+        <div class="profil-menu-left">
+            <div class="profil-menu-icon">
+                <i class="bi bi-question-circle"></i>
+            </div>
+            <strong>Aide & Support</strong>
+        </div>
+        <i class="bi bi-chevron-right"></i>
+    </a>
+
+    <!-- Déconnexion -->
+    <div style="margin-top: 32px;">
+        <form method="post" asp-controller="Auth" asp-action="Logout">
+            <button type="submit" class="btn-logout">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Déconnexion</span>
+            </button>
+        </form>
+    </div>
+</div>
