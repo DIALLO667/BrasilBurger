@@ -23,15 +23,14 @@ namespace BrasilBurger.ClientApp.Models
 
         [Required]
         [StringLength(20)]
-        [Column("mode")]
-        public string Mode { get; set; } = string.Empty; // WAVE ou ORANGE_MONEY
+        [Column("methode")]
+        public string Methode { get; set; } = string.Empty; // "wave" ou "om"
 
-        [Required]
-        [StringLength(20)]
-        [Column("statut")]
-        public string Statut { get; set; } = "REUSSI"; // REUSSI ou ECHOUE
+        [Column("reference_transaction")]
+        [StringLength(100)]
+        public string? ReferenceTransaction { get; set; }
 
-        // Relations
+        // Relation
         [ForeignKey("CommandeId")]
         public virtual Commande? Commande { get; set; }
     }

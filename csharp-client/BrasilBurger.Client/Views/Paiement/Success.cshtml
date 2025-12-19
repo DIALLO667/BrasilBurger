@@ -1,0 +1,84 @@
+@model BrasilBurger.ClientApp.Models.Paiement
+
+@{
+    ViewData["Title"] = "Paiement réussi";
+    var commande = ViewBag.Commande as BrasilBurger.ClientApp.Models.Commande;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <!-- Success Icon -->
+            <div class="text-center mb-4">
+                <div class="display-1 text-success mb-3">✅</div>
+                <h2>Paiement réussi !</h2>
+                <p class="text-muted">Votre commande a été payée avec succès</p>
+            </div>
+
+            <!-- Détails Paiement -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Détails du paiement</h5>
+
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Référence</strong></div>
+                        <div class="col-6 text-end">
+                            <code>@Model.ReferenceTransaction</code>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Méthode</strong></div>
+                        <div class="col-6 text-end">
+                            @if (Model.Methode == "wave")
+                            {
+                                <span class="badge bg-warning text-dark">💛 Wave</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">🧡 Orange Money</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Date</strong></div>
+                        <div class="col-6 text-end">
+                            @Model.DatePaiement.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-6"><strong>Montant</strong></div>
+                        <div class="col-6 text-end">
+                            <h4 class="text-success mb-0">@Model.Montant.ToString("N0") FCFA</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Commande -->
+            @if (commande != null)
+            {
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-check-circle"></i> Commande validée</h6>
+                    <p class="mb-0">
+                        Votre commande #@commande.Id (@commande.TypeRecuperation) est maintenant en préparation.
+                    </p>
+                </div>
+            }
+
+            <!-- Actions -->
+            <div class="d-grid gap-2">
+                <a href="@Url.Action("MesCommandes", "Commande")" class="btn btn-warning btn-lg">
+                    <i class="bi bi-receipt"></i> Voir mes commandes
+                </a>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                    Retour à l'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
