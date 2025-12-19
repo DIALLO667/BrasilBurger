@@ -1,0 +1,163 @@
+@model List<BrasilBurger.ClientApp.Models.Commande>
+
+@{
+    ViewData["Title"] = "Mes Commandes";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">📋 Mes Commandes</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="display-1 mb-3">📦</div>
+            <h4 class="text-muted">Aucune commande</h4>
+            <p class="text-muted">Vous n'avez pas encore passé de commande</p>
+            <a href="@Url.Action("Index", "Burger")" class="btn btn-warning mt-3">
+                Commander maintenant
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Filtres Statut -->
+        <div class="mb-4">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary active" onclick="filterCommandes(event, 'tous')">
+                    Toutes (@Model.Count)
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="filterCommandes(event, 'en_cours')">
+                    En cours (@Model.Count(c => c.Etat == "en_cours"))
+                </button>
+                <button type="button" class="btn btn-outline-success" onclick="filterCommandes(event, 'validee')">
+                    Validées (@Model.Count(c => c.Etat == "validee"))
+                </button>
+                <button type="button" class="btn btn-outline-dark" onclick="filterCommandes(event, 'terminee')">
+                    Terminées (@Model.Count(c => c.Etat == "terminee"))
+                </button>
+            </div>
+        </div>
+
+        <!-- Liste Commandes -->
+        <div class="row row-cols-1 g-4">
+            @foreach (var commande in Model)
+            {
+                <div class="col commande-item" data-etat="@commande.Etat">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <!-- Infos Commande -->
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h5 class="mb-0 me-3">Commande #@commande.Id</h5>
+                                        
+                                        @if (commande.Etat == "en_cours")
+                                        {
+                                            <span class="badge bg-info">⏳ En cours</span>
+                                        }
+                                        else if (commande.Etat == "validee")
+                                        {
+                                            <span class="badge bg-success">✅ Validée</span>
+                                        }
+                                        else if (commande.Etat == "terminee")
+                                        {
+                                            <span class="badge bg-dark">✓ Terminée</span>
+                                        }
+                                        else if (commande.Etat == "annulee")
+                                        {
+                                            <span class="badge bg-danger">✗ Annulée</span>
+                                        }
+                                    </div>
+
+                                    <p class="text-muted mb-2">
+                                        <i class="bi bi-calendar"></i> 
+                                        @commande.DateCommande.ToString("dd/MM/yyyy à HH:mm")
+                                    </p>
+
+                                    <p class="mb-2">
+                                        @if (commande.TypeRecuperation == "sur_place")
+                                        {
+                                            <span class="badge bg-light text-dark">🍽️ Sur place</span>
+                                        }
+                                        else if (commande.TypeRecuperation == "emporter")
+                                        {
+                                            <span class="badge bg-light text-dark">🥡 À emporter</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-dark">🚚 Livraison</span>
+                                        }
+                                    </p>
+
+                                    @if (commande.LignesCommande != null && commande.LignesCommande.Any())
+                                    {
+                                        <p class="text-muted small mb-0">
+                                            @commande.LignesCommande.Count produit(s) • 
+                                            @commande.LignesCommande.Sum(l => l.Quantite) article(s)
+                                        </p>
+                                    }
+                                </div>
+
+                                <!-- Montant & Actions -->
+                                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                    <h4 class="text-warning mb-3">@commande.MontantTotal.ToString("N0") FCFA</h4>
+
+                                    <div class="d-flex flex-column flex-md-row gap-2 justify-content-md-end">
+                                        <!-- Bouton Détails -->
+                                        <a href="@Url.Action("Detail", "Commande", new { id = commande.Id })" 
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-eye"></i> Détails
+                                        </a>
+
+                                        <!-- Bouton Payer (si non payée) -->
+                                        @if (commande.Paiement == null)
+                                        {
+                                            <a href="@Url.Action("Index", "Paiement", new { commandeId = commande.Id })" 
+                                               class="btn btn-warning btn-sm">
+                                                <i class="bi bi-credit-card"></i> Payer
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success align-self-center">
+                                                <i class="bi bi-check-circle"></i> Payée
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<script>
+    function filterCommandes(event, etat) {
+        const items = document.querySelectorAll('.commande-item');
+        const buttons = document.querySelectorAll('.btn-group button');
+
+        // Reset active buttons
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        items.forEach(item => {
+            if (etat === 'tous' || item.dataset.etat === etat) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
