@@ -2,110 +2,82 @@
 
 @{
     ViewData["Title"] = "Commande confirmée";
+    Layout = "~/Views/Shared/_BrasilLayout.cshtml";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <!-- Success Message -->
-            <div class="text-center mb-4">
-                <div class="display-1 text-success mb-3">✅</div>
-                <h2>Commande confirmée !</h2>
-                <p class="text-muted">Votre commande a été enregistrée avec succès</p>
-            </div>
-
-            <!-- Détails Commande -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="mb-3">Détails de la commande</h5>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <strong>N° Commande</strong>
-                        </div>
-                        <div class="col-6 text-end">
-                            #@Model.Id
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <strong>Date</strong>
-                        </div>
-                        <div class="col-6 text-end">
-                            @Model.DateCommande.ToString("dd/MM/yyyy HH:mm")
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <strong>Type</strong>
-                        </div>
-                        <div class="col-6 text-end">
-                            @if (Model.TypeRecuperation == "sur_place")
-                            {
-                                <span class="badge bg-info">🍽️ Sur place</span>
-                            }
-                            else if (Model.TypeRecuperation == "emporter")
-                            {
-                                <span class="badge bg-warning text-dark">🥡 À emporter</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-primary">🚚 Livraison</span>
-                            }
-                        </div>
-                    </div>
-
-                    @if (Model.TypeRecuperation == "livraison" && !string.IsNullOrEmpty(Model.AdresseLivraison))
-                    {
-                        <div class="row mb-3">
-                            <div class="col-6">
-                                <strong>Adresse</strong>
-                            </div>
-                            <div class="col-6 text-end">
-                                @Model.AdresseLivraison
-                            </div>
-                        </div>
-                    }
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <strong>Statut</strong>
-                        </div>
-                        <div class="col-6 text-end">
-                            <span class="badge bg-info">En cours</span>
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <div class="row">
-                        <div class="col-6">
-                            <strong>Montant Total</strong>
-                        </div>
-                        <div class="col-6 text-end">
-                            <h4 class="text-warning mb-0">@Model.MontantTotal.ToString("N0") FCFA</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Prochaines Étapes -->
-            <div class="alert alert-warning mt-4">
-                <h6><i class="bi bi-info-circle"></i> Prochaine étape : Paiement</h6>
-                <p class="mb-0">Vous devez maintenant procéder au paiement pour valider votre commande.</p>
-            </div>
-
-            <!-- Actions -->
-            <div class="d-flex gap-2 mt-4">
-                <a href="@Url.Action("Index", "Paiement", new { commandeId = Model.Id })" class="btn btn-warning flex-fill">
-                    💳 Payer maintenant
-                </a>
-                <a href="@Url.Action("MesCommandes", "Commande")" class="btn btn-outline-secondary flex-fill">
-                    📋 Mes commandes
-                </a>
-            </div>
+<div style="max-width: 800px; margin: 0 auto;">
+    <!-- Succès -->
+    <div style="text-align: center; margin-bottom: 32px;">
+        <div style="width: 80px; height: 80px; background: #10B981; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+            <svg style="width: 48px; height: 48px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
         </div>
+        <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Commande confirmée !</h2>
+        <p style="color: #6B7280; font-size: 16px;">Votre commande a été enregistrée avec succès</p>
+    </div>
+
+    <!-- Détails -->
+    <div class="brasil-card" style="margin-bottom: 24px;">
+        <h5 style="font-weight: 700; margin-bottom: 24px; font-size: 20px;">Détails de la commande</h5>
+
+        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-weight: 600;">N° Commande</span>
+            <span>#@Model.Id</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-weight: 600;">Date</span>
+            <span>@Model.DateCommande.ToString("dd/MM/yyyy HH:mm")</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-weight: 600;">Type</span>
+            <span style="display: inline-block; padding: 4px 12px; background: #FCD34D; border-radius: 12px; font-weight: 600;">
+                @(Model.TypeRecuperation == "livraison" ? "🚚 Livraison" : 
+                  Model.TypeRecuperation == "emporter" ? "🥡 À emporter" : "🍽️ Sur place")
+            </span>
+        </div>
+
+        @if (Model.TypeRecuperation == "livraison" && !string.IsNullOrEmpty(Model.AdresseLivraison))
+        {
+            <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+                <span style="font-weight: 600;">Adresse</span>
+                <span>@Model.AdresseLivraison</span>
+            </div>
+        }
+
+        <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB;">
+            <span style="font-weight: 600;">Statut</span>
+            <span style="display: inline-block; padding: 4px 12px; background: #3B82F6; color: white; border-radius: 12px; font-weight: 600; font-size: 12px;">
+                En cours
+            </span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; padding: 16px 0 0;">
+            <span style="font-weight: 700; font-size: 18px;">Montant Total</span>
+            <span style="font-size: 24px; font-weight: 700; color: #F59E0B;">@Model.MontantTotal.ToString("N0") FCFA</span>
+        </div>
+    </div>
+
+    <!-- Prochaine étape -->
+    <div style="background: #FFFBEB; border: 2px solid #FCD34D; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+        <h6 style="font-weight: 700; margin-bottom: 8px;">Prochaine étape : Paiement</h6>
+        <p style="margin: 0; color: #92400E;">Vous devez maintenant procéder au paiement pour valider votre commande.</p>
+    </div>
+
+    <!-- Boutons -->
+    <div style="display: flex; gap: 16px;">
+        <a href="@Url.Action("Index", "Paiement", new { commandeId = Model.Id })" 
+           class="btn btn-warning btn-lg" 
+           style="flex: 1; padding: 16px; border-radius: 12px; font-weight: 600; text-align: center; text-decoration: none; background: #FCD34D; color: #111827; border: none;">
+            💳 Payer maintenant
+        </a>
+
+        <a href="@Url.Action("MesCommandes", "Commande")" 
+           class="btn btn-outline-secondary btn-lg" 
+           style="flex: 1; padding: 16px; border-radius: 12px; font-weight: 600; text-align: center; text-decoration: none; background: white; color: #6B7280; border: 2px solid #E5E7EB;">
+            📋 Mes commandes
+        </a>
     </div>
 </div>
