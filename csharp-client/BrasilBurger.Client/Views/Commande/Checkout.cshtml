@@ -1,122 +1,164 @@
 @{
     ViewData["Title"] = "Finaliser ma commande";
+    Layout = "~/Views/Shared/_BrasilLayout.cshtml";
+    
+    var zones = ViewBag.Zones as List<BrasilBurger.ClientApp.Models.Zone> ?? new List<BrasilBurger.ClientApp.Models.Zone>();
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">🛍️ Finaliser ma commande</h2>
+<style>
+.checkout-container {
+    display: flex;
+    gap: 32px;
+}
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">
-            @TempData["Error"]
-        </div>
-    }
+.checkout-form {
+    flex: 1;
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+}
 
-    <div class="row">
-        <!-- Formulaire -->
-        <div class="col-md-7">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="mb-3">Type de récupération</h5>
+.checkout-summary {
+    width: 350px;
+}
 
-                    <form method="post" asp-action="Create">
-                        <!-- Type Récupération -->
-                        <div class="mb-4">
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="typeRecuperation" 
-                                       id="surPlace" value="sur_place" required>
-                                <label class="form-check-label" for="surPlace">
-                                    <strong>🍽️ Sur place</strong>
-                                    <p class="text-muted small mb-0">Consommer au restaurant</p>
-                                </label>
-                            </div>
+.zone-info {
+    background: #FFFBEB;
+    border: 2px solid #FCD34D;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+    display: none;
+}
 
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="typeRecuperation" 
-                                       id="emporter" value="emporter" required>
-                                <label class="form-check-label" for="emporter">
-                                    <strong>🥡 À emporter</strong>
-                                    <p class="text-muted small mb-0">Récupérer au restaurant</p>
-                                </label>
-                            </div>
+.zone-info.active {
+    display: block;
+}
+</style>
 
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="typeRecuperation" 
-                                       id="livraison" value="livraison" required 
-                                       onchange="toggleAdresse()">
-                                <label class="form-check-label" for="livraison">
-                                    <strong>🚚 Livraison</strong>
-                                    <p class="text-muted small mb-0">Se faire livrer à domicile</p>
-                                </label>
-                            </div>
-                        </div>
+<div class="checkout-container">
+    <!-- Formulaire -->
+    <div class="checkout-form">
+        <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 24px;">🛍️ Finaliser ma commande</h2>
 
-                        <!-- Adresse Livraison (si livraison) -->
-                        <div id="adresseSection" style="display: none;" class="mb-4">
-                            <label for="adresse" class="form-label">Adresse de livraison *</label>
-                            <textarea class="form-control" id="adresse" name="adresse" 
-                                      rows="3" placeholder="Votre adresse complète..."></textarea>
-                            <small class="text-muted">
-                                Exemple : Cité Keur Gorgui, Villa 123, Dakar
-                            </small>
-                        </div>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
 
-                        <!-- Bouton Commander -->
-                        <button type="submit" class="btn btn-warning btn-lg w-100">
-                            Confirmer la commande • @ViewBag.Total.ToString("N0") FCFA
-                        </button>
-                    </form>
+        <form method="post" asp-action="Create" id="checkoutForm">
+            <!-- Type Récupération -->
+            <div class="mb-4">
+                <label style="font-size: 18px; font-weight: 600; margin-bottom: 16px; display: block;">Type de récupération</label>
+                
+                <div class="form-check mb-3" style="border: 2px solid #E5E7EB; border-radius: 12px; padding: 16px;">
+                    <input class="form-check-input" type="radio" name="typeRecuperation" 
+                           id="surPlace" value="sur_place" required onchange="toggleLivraison()">
+                    <label class="form-check-label" for="surPlace" style="cursor: pointer; width: 100%;">
+                        <strong>🍽️ Sur place</strong>
+                        <p class="text-muted small mb-0">Consommer au restaurant</p>
+                    </label>
+                </div>
+
+                <div class="form-check mb-3" style="border: 2px solid #E5E7EB; border-radius: 12px; padding: 16px;">
+                    <input class="form-check-input" type="radio" name="typeRecuperation" 
+                           id="emporter" value="emporter" required onchange="toggleLivraison()">
+                    <label class="form-check-label" for="emporter" style="cursor: pointer; width: 100%;">
+                        <strong>🥡 À emporter</strong>
+                        <p class="text-muted small mb-0">Récupérer au restaurant</p>
+                    </label>
+                </div>
+
+                <div class="form-check" style="border: 2px solid #E5E7EB; border-radius: 12px; padding: 16px;">
+                    <input class="form-check-input" type="radio" name="typeRecuperation" 
+                           id="livraison" value="livraison" required onchange="toggleLivraison()">
+                    <label class="form-check-label" for="livraison" style="cursor: pointer; width: 100%;">
+                        <strong>🚚 Livraison</strong>
+                        <p class="text-muted small mb-0">Se faire livrer à domicile</p>
+                    </label>
                 </div>
             </div>
-        </div>
 
-        <!-- Récapitulatif Panier -->
-        <div class="col-md-5">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="mb-3">Récapitulatif</h5>
+            <!-- Section Livraison (cachée par défaut) -->
+            <div id="livraisonSection" style="display: none;">
+                <label style="font-size: 18px; font-weight: 600; margin-bottom: 12px; display: block;">Adresse de livraison</label>
+                
+                <textarea class="form-control" id="adresse" name="adresse" 
+                          rows="3" placeholder="Entrez votre adresse complète..."
+                          style="border: 2px solid #E5E7EB; border-radius: 12px; padding: 12px;"
+                          onkeyup="detectZone()" onchange="detectZone()" onblur="detectZone()"></textarea>
+                
+                <small class="text-muted d-block mt-2">
+                    Exemple : Plateau, Médina, Almadies, Point E, etc.
+                </small>
 
-                    @foreach (var item in ViewBag.Panier)
-                    {
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>@item.Quantite x @item.Nom</span>
-                            <span>@item.Total.ToString("N0") FCFA</span>
+                <!-- Info zone détectée -->
+                <div id="zoneInfo" class="zone-info">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong id="zoneNom">Zone</strong>
+                            <p class="text-muted small mb-0" id="zoneQuartiers">Quartiers</p>
                         </div>
-                    }
-
-                    <hr>
-
-                    <div class="d-flex justify-content-between">
-                        <strong>Total</strong>
-                        <strong class="text-warning">@ViewBag.Total.ToString("N0") FCFA</strong>
-                    </div>
-
-                    <div class="alert alert-info mt-3 small">
-                        <i class="bi bi-info-circle"></i> Le paiement se fera après confirmation
+                        <div>
+                            <span style="font-size: 20px; font-weight: 700; color: #F59E0B;" id="zonePrix">+0 FCFA</span>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Bouton Commander -->
+            <button type="submit" class="btn btn-warning btn-lg w-100 mt-4" style="padding: 16px; border-radius: 12px; font-weight: 600;">
+                Confirmer la commande • <span id="totalDisplay">@ViewBag.Total.ToString("N0")</span> FCFA
+            </button>
+        </form>
+    </div>
+
+    <!-- Récapitulatif -->
+    <div class="checkout-summary">
+        <div class="brasil-card" style="padding: 24px;">
+            <h5 style="font-weight: 700; margin-bottom: 20px;">Récapitulatif</h5>
+
+            @foreach (var item in ViewBag.Panier)
+            {
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px;">
+                    <span>@item.Quantite x @item.Nom</span>
+                    <span>@item.Total.ToString("N0") FCFA</span>
+                </div>
+            }
+
+            <hr>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Sous-total</span>
+                <span id="sousTotal">@ViewBag.Total.ToString("N0") FCFA</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;" id="fraisLivraisonLine" class="d-none">
+                <span>Frais de livraison</span>
+                <span style="color: #F59E0B; font-weight: 600;" id="fraisLivraison">+0 FCFA</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; padding-top: 16px; border-top: 2px solid #E5E7EB;">
+                <strong>Total</strong>
+                <strong style="font-size: 24px; color: #F59E0B;" id="totalFinal">@ViewBag.Total.ToString("N0") FCFA</strong>
+            </div>
+
+            <div class="alert alert-info mt-3 small">
+                <i class="bi bi-info-circle"></i> Le paiement se fera après confirmation
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    function toggleAdresse() {
-        const livraison = document.getElementById('livraison');
-        const adresseSection = document.getElementById('adresseSection');
-        const adresseInput = document.getElementById('adresse');
+@section Scripts {
+    <script src="~/js/checkout.js"></script>
+    <script>
+        // Initialiser avec les données du serveur
+        const zonesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(zones));
+        const totalPanier = @ViewBag.Total;
         
-        if (livraison.checked) {
-            adresseSection.style.display = 'block';
-            adresseInput.required = true;
-        } else {
-            adresseSection.style.display = 'none';
-            adresseInput.required = false;
-        }
-    }
-
-    // Écouter tous les radios
-    document.querySelectorAll('input[name="typeRecuperation"]').forEach(radio => {
-        radio.addEventListener('change', toggleAdresse);
-    });
-</script>
+        initCheckout(zonesData, totalPanier);
+    </script>
+}

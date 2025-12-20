@@ -6,14 +6,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configuration PostgreSQL AVEC LOGGING
+// Configuration PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
     
-    // ✅ LOGGING POUR VOIR LES REQUÊTES SQL
-    options.EnableSensitiveDataLogging();
-    options.LogTo(Console.WriteLine, LogLevel.Information);
+    // Logging seulement en développement
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+        options.LogTo(Console.WriteLine, LogLevel.Information);
+    }
 });
 
 // Configuration Session (pour panier et auth)
@@ -33,8 +36,14 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+else
+{
+    app.UseDeveloperExceptionPage();
+}
 
-app.UseHttpsRedirection();
+// ⚠️ NE PAS UTILISER UseHttpsRedirection sur Render
+// app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -46,5 +55,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Configuration port dynamique pour Render
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5122";
+app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.Run();

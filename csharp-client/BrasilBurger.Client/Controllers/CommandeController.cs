@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using BrasilBurger.ClientApp.Data;
 using BrasilBurger.ClientApp.Data.Repositories;
 using BrasilBurger.ClientApp.Models;
@@ -9,18 +10,20 @@ namespace BrasilBurger.ClientApp.Controllers
     public class CommandeController : Controller
     {
         private readonly CommandeRepository _commandeRepository;
+        private readonly ZoneRepository _zoneRepository;
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
 
         public CommandeController(ApplicationDbContext context, IConfiguration configuration)
         {
             _commandeRepository = new CommandeRepository(context);
+            _zoneRepository = new ZoneRepository(context);
             _context = context;
             _configuration = configuration;
         }
 
         // GET: /Commande/Checkout
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
             try
             {
@@ -36,8 +39,6 @@ namespace BrasilBurger.ClientApp.Controllers
 
                 // Vérifier si panier non vide
                 var panier = HttpContext.Session.GetPanier();
-                Console.WriteLine($"CHECKPOINT: Panier contient {panier.Count} items");
-                
                 if (!panier.Any())
                 {
                     Console.WriteLine("ERROR: Panier vide");
@@ -45,8 +46,12 @@ namespace BrasilBurger.ClientApp.Controllers
                     return RedirectToAction("Index", "Panier");
                 }
 
+                // Récupérer zones pour affichage
+                var zones = await _zoneRepository.GetAllAsync();
+
                 ViewBag.Total = HttpContext.Session.TotalPanier();
                 ViewBag.Panier = panier;
+                ViewBag.Zones = zones;
                 
                 Console.WriteLine($"SUCCESS: Checkout page ready, Total = {ViewBag.Total}");
                 return View();
@@ -54,7 +59,6 @@ namespace BrasilBurger.ClientApp.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"FATAL ERROR in Checkout: {ex.Message}");
-                Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 TempData["Error"] = $"Erreur: {ex.Message}";
                 return RedirectToAction("Index", "Home");
             }
@@ -69,7 +73,6 @@ namespace BrasilBurger.ClientApp.Controllers
                 Console.WriteLine("=== CHECKPOINT 1: Create POST Start ===");
                 Console.WriteLine($"Type: {typeRecuperation}, Adresse: {adresse}");
 
-                // Vérifier authentification
                 var clientId = HttpContext.Session.GetInt32("ClientId");
                 if (clientId == null)
                 {
@@ -78,7 +81,6 @@ namespace BrasilBurger.ClientApp.Controllers
                 }
                 Console.WriteLine($"CHECKPOINT 2: ClientId = {clientId}");
 
-                // Récupérer panier
                 var panier = HttpContext.Session.GetPanier();
                 if (!panier.Any())
                 {
@@ -107,22 +109,45 @@ namespace BrasilBurger.ClientApp.Controllers
                 }
                 Console.WriteLine("CHECKPOINT 5: Validation adresse OK");
 
-                // Calculer montant total
-                var montantTotal = panier.Sum(p => p.Total);
-                Console.WriteLine($"CHECKPOINT 6: Montant total = {montantTotal}");
+                // Calculer montant panier
+                var montantPanier = panier.Sum(p => p.Total);
+                Console.WriteLine($"CHECKPOINT 6: Montant panier = {montantPanier}");
 
-                // === MÉTHODE DIRECTE SQL (Bypass Entity Framework) ===
-                Console.WriteLine("CHECKPOINT 7: Début insertion SQL directe");
+                // Gérer zone et frais de livraison
+                int? zoneId = null;
+                decimal fraisLivraison = 0;
+                
+                if (typeRecuperation.ToLower() == "livraison")
+                {
+                    var zone = await _zoneRepository.FindZoneByAddressAsync(adresse!);
+                    if (zone != null)
+                    {
+                        zoneId = zone.Id;
+                        fraisLivraison = zone.PrixLivraison;
+                        Console.WriteLine($"CHECKPOINT 7: Zone trouvée: {zone.Nom}, Prix: {fraisLivraison}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("WARNING: Aucune zone trouvée, pas de frais");
+                    }
+                }
+
+                // Montant total = panier + livraison
+                var montantTotal = montantPanier + fraisLivraison;
+                Console.WriteLine($"CHECKPOINT 8: Montant total = {montantTotal} (Panier: {montantPanier} + Livraison: {fraisLivraison})");
+
+                // === INSERTION SQL DIRECTE ===
+                Console.WriteLine("CHECKPOINT 9: Début insertion SQL directe");
                 
                 var connectionString = _configuration.GetConnectionString("DefaultConnection");
                 using var connection = new Npgsql.NpgsqlConnection(connectionString);
                 await connection.OpenAsync();
-                Console.WriteLine("CHECKPOINT 8: Connexion BD ouverte");
+                Console.WriteLine("CHECKPOINT 10: Connexion BD ouverte");
 
-                // Insérer commande
+                // Insérer commande AVEC zone_id
                 var cmdSql = @"
-                    INSERT INTO commande (client_id, montant_total, type_recuperation, etat, adresse_livraison)
-                    VALUES (@clientId, @montantTotal, @typeRecuperation, @etat, @adresse)
+                    INSERT INTO commande (client_id, montant_total, type_recuperation, etat, adresse_livraison, zone_id)
+                    VALUES (@clientId, @montantTotal, @typeRecuperation, @etat, @adresse, @zoneId)
                     RETURNING id";
 
                 using var cmd = new Npgsql.NpgsqlCommand(cmdSql, connection);
@@ -131,13 +156,14 @@ namespace BrasilBurger.ClientApp.Controllers
                 cmd.Parameters.AddWithValue("typeRecuperation", typeRecuperation.ToLower());
                 cmd.Parameters.AddWithValue("etat", "en_cours");
                 cmd.Parameters.AddWithValue("adresse", (object?)adresse ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("zoneId", (object?)zoneId ?? DBNull.Value);
 
-                Console.WriteLine("CHECKPOINT 9: Exécution INSERT commande...");
+                Console.WriteLine("CHECKPOINT 11: Exécution INSERT commande...");
                 var commandeId = (int)(await cmd.ExecuteScalarAsync())!;
                 Console.WriteLine($"SUCCESS: Commande créée, ID = {commandeId}");
 
                 // Insérer lignes
-                Console.WriteLine($"CHECKPOINT 10: Insertion {panier.Count} lignes...");
+                Console.WriteLine($"CHECKPOINT 12: Insertion {panier.Count} lignes...");
                 foreach (var item in panier)
                 {
                     var ligneSql = @"
@@ -155,11 +181,11 @@ namespace BrasilBurger.ClientApp.Controllers
                     Console.WriteLine($"  - Ligne insérée: {item.Nom} x{item.Quantite}");
                 }
 
-                Console.WriteLine("CHECKPOINT 11: Toutes les lignes insérées");
+                Console.WriteLine("CHECKPOINT 13: Toutes les lignes insérées");
 
                 // Vider le panier
                 HttpContext.Session.ViderPanier();
-                Console.WriteLine("CHECKPOINT 12: Panier vidé");
+                Console.WriteLine("CHECKPOINT 14: Panier vidé");
 
                 TempData["Success"] = "Commande créée avec succès !";
                 Console.WriteLine($"=== SUCCESS: Redirection vers Confirmation/{commandeId} ===");
@@ -180,7 +206,6 @@ namespace BrasilBurger.ClientApp.Controllers
             {
                 Console.WriteLine("=== ERREUR GÉNÉRALE ===");
                 Console.WriteLine($"Message: {ex.Message}");
-                Console.WriteLine($"Type: {ex.GetType().Name}");
                 Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 
                 TempData["Error"] = $"Erreur: {ex.Message}";
@@ -193,8 +218,15 @@ namespace BrasilBurger.ClientApp.Controllers
         {
             try
             {
-                Console.WriteLine($"=== CHECKPOINT: Confirmation pour commande {id} ===");
+                Console.WriteLine($"=== CHECKPOINT: Confirmation commande {id} ===");
                 
+                // Vérifier authentification
+                var clientId = HttpContext.Session.GetInt32("ClientId");
+                if (clientId == null)
+                {
+                    return RedirectToAction("Login", "Auth");
+                }
+
                 var commande = await _commandeRepository.GetByIdAsync(id);
                 
                 if (commande == null)
@@ -203,11 +235,10 @@ namespace BrasilBurger.ClientApp.Controllers
                     return NotFound();
                 }
 
-                // Vérifier que c'est bien la commande du client connecté
-                var clientId = HttpContext.Session.GetInt32("ClientId");
+                // Vérifier que c'est la commande du client connecté
                 if (commande.ClientId != clientId)
                 {
-                    Console.WriteLine($"ERROR: Commande {id} n'appartient pas au client {clientId}");
+                    Console.WriteLine($"ERROR: Commande {id} n'appartient pas au client");
                     return Forbid();
                 }
 
@@ -217,7 +248,6 @@ namespace BrasilBurger.ClientApp.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR in Confirmation: {ex.Message}");
-                Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 TempData["Error"] = $"Erreur: {ex.Message}";
                 return RedirectToAction("Index", "Home");
             }
