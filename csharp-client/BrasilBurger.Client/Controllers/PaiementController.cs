@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BrasilBurger.ClientApp.Data;
 using BrasilBurger.ClientApp.Data.Repositories;
-using Microsoft.EntityFrameworkCore;
 using BrasilBurger.ClientApp.Models;
 
 namespace BrasilBurger.ClientApp.Controllers
@@ -9,13 +8,11 @@ namespace BrasilBurger.ClientApp.Controllers
     public class PaiementController : Controller
     {
         private readonly CommandeRepository _commandeRepository;
-        private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
 
         public PaiementController(ApplicationDbContext context, IConfiguration configuration)
         {
             _commandeRepository = new CommandeRepository(context);
-            _context = context;
             _configuration = configuration;
         }
 
@@ -29,6 +26,7 @@ namespace BrasilBurger.ClientApp.Controllers
                 if (clientId == null)
                 {
                     Console.WriteLine("ERROR: Client non connecté");
+                    TempData["Error"] = "Veuillez vous connecter.";
                     return RedirectToAction("Login", "Auth");
                 }
 
@@ -44,13 +42,22 @@ namespace BrasilBurger.ClientApp.Controllers
                 if (commande.ClientId != clientId)
                 {
                     Console.WriteLine($"ERROR: Commande n'appartient pas au client");
-                    return Forbid();
+                    TempData["Error"] = "Accès non autorisé.";
+                    return RedirectToAction("MesCommandes", "Commande");
                 }
 
-                var paiementExistant = await _context.Set<Paiement>()
-                    .FirstOrDefaultAsync(p => p.CommandeId == commandeId);
+                // Vérifier paiement via SQL direct (pas EF Core)
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                using var connection = new Npgsql.NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+
+                var checkSql = "SELECT COUNT(*) FROM paiement WHERE commande_id = @commandeId";
+                using var checkCmd = new Npgsql.NpgsqlCommand(checkSql, connection);
+                checkCmd.Parameters.AddWithValue("commandeId", commandeId);
                 
-                if (paiementExistant != null)
+                var count = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
+                
+                if (count > 0)
                 {
                     Console.WriteLine($"WARNING: Commande déjà payée");
                     TempData["Info"] = "Cette commande a déjà été payée.";
@@ -65,7 +72,8 @@ namespace BrasilBurger.ClientApp.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"FATAL ERROR in Paiement.Index: {ex.Message}");
-                TempData["Error"] = $"Erreur: {ex.Message}";
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                TempData["Error"] = "Erreur lors du chargement du paiement.";
                 return RedirectToAction("Index", "Home");
             }
         }
@@ -102,15 +110,23 @@ namespace BrasilBurger.ClientApp.Controllers
                     return NotFound();
                 }
 
-                var paiementExistant = await _context.Set<Paiement>()
-                    .FirstOrDefaultAsync(p => p.CommandeId == commandeId);
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                using var connection = new Npgsql.NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+
+                // Vérifier si déjà payé
+                var checkSql = "SELECT COUNT(*) FROM paiement WHERE commande_id = @commandeId";
+                using var checkCmd = new Npgsql.NpgsqlCommand(checkSql, connection);
+                checkCmd.Parameters.AddWithValue("commandeId", commandeId);
+                var count = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
                 
-                if (paiementExistant != null)
+                if (count > 0)
                 {
                     TempData["Info"] = "Cette commande a déjà été payée.";
                     return RedirectToAction("Success", new { commandeId });
                 }
 
+                // Simulation paiement
                 var random = new Random();
                 var success = random.Next(1, 11) <= 9;
 
@@ -121,10 +137,6 @@ namespace BrasilBurger.ClientApp.Controllers
                 }
 
                 var reference = $"{methode.ToUpper()}-{DateTime.UtcNow:yyyyMMddHHmmss}-{commandeId}";
-
-                var connectionString = _configuration.GetConnectionString("DefaultConnection");
-                using var connection = new Npgsql.NpgsqlConnection(connectionString);
-                await connection.OpenAsync();
 
                 var sql = @"
                     INSERT INTO paiement (commande_id, montant, methode, numero_telephone, reference_transaction, date_paiement)
@@ -148,7 +160,7 @@ namespace BrasilBurger.ClientApp.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR in Paiement.Traiter: {ex.Message}");
-                TempData["Error"] = $"Erreur lors du paiement: {ex.Message}";
+                TempData["Error"] = "Erreur lors du paiement.";
                 return RedirectToAction("Index", new { commandeId });
             }
         }
@@ -169,8 +181,35 @@ namespace BrasilBurger.ClientApp.Controllers
                     return NotFound();
                 }
 
-                var paiement = await _context.Set<Paiement>()
-                    .FirstOrDefaultAsync(p => p.CommandeId == commandeId);
+                // Récupérer paiement via SQL direct
+                var connectionString = _configuration.GetConnectionString("DefaultConnection");
+                using var connection = new Npgsql.NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+
+                var sql = @"
+                    SELECT id, commande_id, montant, methode, numero_telephone, reference_transaction, date_paiement
+                    FROM paiement 
+                    WHERE commande_id = @commandeId 
+                    LIMIT 1";
+
+                using var cmd = new Npgsql.NpgsqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("commandeId", commandeId);
+
+                Paiement? paiement = null;
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    paiement = new Paiement
+                    {
+                        Id = reader.GetInt32(0),
+                        CommandeId = reader.GetInt32(1),
+                        Montant = reader.GetDecimal(2),
+                        Methode = reader.GetString(3),
+                        NumeroTelephone = reader.IsDBNull(4) ? null : reader.GetString(4),
+                        ReferenceTransaction = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        DatePaiement = reader.GetDateTime(6)
+                    };
+                }
 
                 ViewBag.Commande = commande;
                 ViewBag.Paiement = paiement;
