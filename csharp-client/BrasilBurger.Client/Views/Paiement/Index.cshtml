@@ -1,7 +1,8 @@
-@model BrasilBurger.ClientApp.Models.Commande
-
 @{
     ViewData["Title"] = "Paiement";
+    Layout = "~/Views/Shared/_BrasilLayout.cshtml";
+    
+    var commande = ViewBag.Commande as BrasilBurger.ClientApp.Models.Commande;
 }
 
 <div class="container mt-5">
@@ -12,12 +13,12 @@
                     <!-- Header -->
                     <div class="text-center mb-4">
                         <h2 class="fw-bold">💳 Paiement</h2>
-                        <p class="text-muted">Commande #@Model.Id</p>
+                        <p class="text-muted">Commande #@commande.Id</p>
                     </div>
 
                     <!-- Montant -->
                     <div class="alert alert-warning text-center mb-4">
-                        <h3 class="mb-0">@Model.MontantTotal.ToString("N0") FCFA</h3>
+                        <h3 class="mb-0">@commande.MontantTotal.ToString("N0") FCFA</h3>
                     </div>
 
                     @if (TempData["Error"] != null)
@@ -29,7 +30,7 @@
 
                     <!-- Formulaire -->
                     <form method="post" asp-action="Traiter">
-                        <input type="hidden" name="commandeId" value="@Model.Id">
+                        <input type="hidden" name="commandeId" value="@commande.Id">
 
                         <!-- Choix Méthode -->
                         <div class="mb-4">
@@ -51,7 +52,7 @@
 
                             <div class="form-check p-3 border rounded">
                                 <input class="form-check-input" type="radio" name="methode" 
-                                       id="om" value="om" required>
+                                       id="om" value="orange_money" required>
                                 <label class="form-check-label w-100" for="om">
                                     <div class="d-flex align-items-center">
                                         <div class="me-3" style="font-size: 2rem;">🧡</div>
@@ -80,11 +81,11 @@
 
                         <!-- Bouton Payer -->
                         <button type="submit" class="btn btn-warning btn-lg w-100">
-                            Payer @Model.MontantTotal.ToString("N0") FCFA
+                            Payer @commande.MontantTotal.ToString("N0") FCFA
                         </button>
 
                         <!-- Bouton Annuler -->
-                        <a href="@Url.Action("Confirmation", "Commande", new { id = Model.Id })" 
+                        <a href="@Url.Action("Confirmation", "Commande", new { id = commande.Id })" 
                            class="btn btn-outline-secondary w-100 mt-2">
                             Annuler
                         </a>
