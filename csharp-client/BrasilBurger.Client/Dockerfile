@@ -1,20 +1,24 @@
-# ===== BUILD STAGE =====
-FROM mcr.microsoft.com/dotnet/sdk:8.0.416 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY *.csproj ./
+# Copier .csproj et restaurer
+COPY *.csproj .
 RUN dotnet restore
 
-COPY . ./
-RUN dotnet publish -c Release -o /app/out --no-restore
+# Copier tout le reste
+COPY . .
 
-# ===== RUNTIME STAGE =====
-FROM mcr.microsoft.com/dotnet/aspnet:8.0.16
+# Publier en Release
+RUN dotnet publish -c Release -o /app/out
+
+# Image finale
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
+COPY --from=build /app/out .
 
-COPY --from=build /app/out ./
-
+# Port 8080 pour Render
 EXPOSE 8080
+ENV PORT=8080
 ENV ASPNETCORE_URLS=http://+:8080
 
 ENTRYPOINT ["dotnet", "BrasilBurger.Client.dll"]

@@ -41,7 +41,7 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-// ⚠️ NE PAS UTILISER UseHttpsRedirection sur Render
+// NE PAS UTILISER UseHttpsRedirection sur Render
 // app.UseHttpsRedirection();
 
 app.UseStaticFiles();
@@ -56,8 +56,17 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Configuration port dynamique pour Render
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5122";
-app.Urls.Add($"http://0.0.0.0:{port}");
+// Configuration port : Local vs Production
+if (app.Environment.IsDevelopment())
+{
+    // Local : port 5122
+    app.Urls.Add("http://localhost:5122");
+}
+else
+{
+    // Production (Render) : port dynamique
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    app.Urls.Add($"http://0.0.0.0:{port}");
+}
 
 app.Run();
