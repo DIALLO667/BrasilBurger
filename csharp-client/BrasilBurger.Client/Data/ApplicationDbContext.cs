@@ -10,27 +10,35 @@ namespace BrasilBurger.ClientApp.Data
         {
         }
 
-        public DbSet<Burger> Burgers { get; set; }
-        public DbSet<Complement> Complements { get; set; }
-        public DbSet<Menu> Menus { get; set; }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<Burger> Burgers { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<Complement> Complements { get; set; }
         public DbSet<Commande> Commandes { get; set; }
         public DbSet<LigneCommande> LignesCommande { get; set; }
         public DbSet<Paiement> Paiements { get; set; }
+        public DbSet<Zone> Zones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuration minimale - EF Core fait le reste automatiquement
-            modelBuilder.Entity<Client>()
-                .HasIndex(c => c.Email)
-                .IsUnique();
+            modelBuilder.Entity<Menu>()
+                .HasOne(m => m.Burger)
+                .WithMany()
+                .HasForeignKey(m => m.BurgerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Commande>()
-                .HasOne(c => c.Client)
-                .WithMany(cl => cl.Commandes)
-                .HasForeignKey(c => c.ClientId)
+            modelBuilder.Entity<Menu>()
+                .HasOne(m => m.Boisson)
+                .WithMany()
+                .HasForeignKey(m => m.BoissonId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Menu>()
+                .HasOne(m => m.Frites)
+                .WithMany()
+                .HasForeignKey(m => m.FritesId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<LigneCommande>()
@@ -41,8 +49,8 @@ namespace BrasilBurger.ClientApp.Data
 
             modelBuilder.Entity<Paiement>()
                 .HasOne(p => p.Commande)
-                .WithOne(c => c.Paiement)
-                .HasForeignKey<Paiement>(p => p.CommandeId)
+                .WithMany()
+                .HasForeignKey(p => p.CommandeId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
