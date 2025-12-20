@@ -98,6 +98,7 @@
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/ajh1bwlpve-{0}-cuafcvfz7j-cuafcvfz7j.gz
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/1rm25njxbm-{0}-lugek5hnai-lugek5hnai.gz
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/ovfxa5u6j4-{0}-61n19gt1b8-61n19gt1b8.gz
+/Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/fmzss3spyh-{0}-ni4hg5rx38-ni4hg5rx38.gz
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/yj2rd1fuhc-{0}-fr7q2aak1r-fr7q2aak1r.gz
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/4hvuh7kgy4-{0}-bqjiyaj88i-bqjiyaj88i.gz
 /Users/macbookpro2020/Desktop/BrasilBurger/csharp-client/BrasilBurger.Client/obj/Debug/net10.0/compressed/fwd79agz63-{0}-c2jlpeoesf-c2jlpeoesf.gz
