@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Tableau de Bord</h1>
+            <p class="text-muted">Bienvenue {{ app.user.prenom }} {{ app.user.nom }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body">
+                    <h5>Commandes en cours</h5>
+                    <h2>--</h2>
+                    <small>Phase 3 : Statistiques</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
