@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard - Brasil Burger{% endblock %}
 
 {% block body %}
 <div class="container-fluid">
@@ -8,16 +8,111 @@
         <div class="col">
             <h1>Tableau de Bord</h1>
             <p class="text-muted">Bienvenue {{ app.user.prenom }} {{ app.user.nom }}</p>
+            <p class="text-muted">Statistiques du jour : {{ "now"|date("d/m/Y") }}</p>
         </div>
     </div>
 
-    <div class="row">
+    <!-- Statistiques Cards -->
+    <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="card-body">
-                    <h5>Commandes en cours</h5>
-                    <h2>--</h2>
-                    <small>Phase 3 : Statistiques</small>
+                    <h6 class="card-title">Commandes en cours</h6>
+                    <h2 class="mb-0">{{ stats.commandesEnCours }}</h2>
+                    <small>Aujourd'hui</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body">
+                    <h6 class="card-title">Commandes validées</h6>
+                    <h2 class="mb-0">{{ stats.commandesValidees }}</h2>
+                    <small>Aujourd'hui</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="card-body">
+                    <h6 class="card-title">Recettes journalières</h6>
+                    <h2 class="mb-0">{{ stats.recettesJournalieres|number_format(0, ',', ' ') }} FCFA</h2>
+                    <small>Commandes payées</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body">
+                    <h6 class="card-title">Commandes annulées</h6>
+                    <h2 class="mb-0">{{ stats.commandesAnnulees }}</h2>
+                    <small>Aujourd'hui</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Produits -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🍔 Top Burgers du jour</h5>
+                </div>
+                <div class="card-body">
+                    {% if stats.topBurgers|length > 0 %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Burger</th>
+                                    <th class="text-end">Quantité</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for burger in stats.topBurgers %}
+                                <tr>
+                                    <td>{{ burger.nom }}</td>
+                                    <td class="text-end"><strong>{{ burger.quantite }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">Aucun burger vendu aujourd'hui</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🎯 Top Menus du jour</h5>
+                </div>
+                <div class="card-body">
+                    {% if stats.topMenus|length > 0 %}
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Menu</th>
+                                    <th class="text-end">Quantité</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for menu in stats.topMenus %}
+                                <tr>
+                                    <td>{{ menu.nom }}</td>
+                                    <td class="text-end"><strong>{{ menu.quantite }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-muted">Aucun menu vendu aujourd'hui</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
