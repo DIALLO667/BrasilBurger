@@ -83,6 +83,9 @@
             <a href="{{ path('commande_index') }}" class="{{ app.request.attributes.get('_route') starts with 'commande_' ? 'active' : '' }}">
                 <i class="fas fa-shopping-bag me-2"></i> Commandes
             </a>
+            <a href="{{ path('client_recherche') }}" class="{{ app.request.attributes.get('_route') starts with 'client_' ? 'active' : '' }}">
+                <i class="fas fa-users me-2"></i> Clients
+            </a>
             <a href="{{ path('zone_regroupement') }}" class="{{ app.request.attributes.get('_route') starts with 'zone_' ? 'active' : '' }}">
                 <i class="fas fa-map-marked-alt me-2"></i> Zones & Livraisons
             </a>

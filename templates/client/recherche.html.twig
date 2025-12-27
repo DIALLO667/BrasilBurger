@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recherche client{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Recherche de client</h1>
+            <p class="text-muted">Rechercher par nom, prénom, téléphone ou email</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form method="get" class="input-group">
+                <input type="text" name="q" class="form-control form-control-lg" 
+                       value="{{ query }}" 
+                       placeholder="Nom, prénom, téléphone..." 
+                       autofocus>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Rechercher
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if query|length >= 2 %}
+        {% if clients|length > 0 %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ clients|length }} résultat(s)</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Commandes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients %}
+                            <tr>
+                                <td><strong>{{ client.prenom }} {{ client.nom }}</strong></td>
+                                <td>{{ client.email }}</td>
+                                <td>{{ client.telephone }}</td>
+                                <td><span class="badge bg-info">{{ client.nombre_commandes }}</span></td>
+                                <td>
+                                    <a href="{{ path('client_detail', {id: client.id}) }}" class="btn btn-sm btn-primary">
+                                        Voir historique
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            Aucun client trouvé pour "{{ query }}"
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
