@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livreurs{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>Gestion des Livreurs</h1>
+                    <p class="text-muted">{{ livreurs|length }} livreur(s)</p>
+                </div>
+                <a href="{{ path('livreur_create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> Nouveau livreur
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for livreur in livreurs %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">{{ livreur.getNomComplet() }}</h5>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-phone me-1"></i> {{ livreur.telephone }}
+                            </p>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('livreur_edit', {id: livreur.id}) }}">
+                                        <i class="fas fa-edit me-2"></i> Modifier
+                                    </a>
+                                </li>
+                                <li>
+                                    <form method="post" action="{{ path('livreur_archive', {id: livreur.id}) }}" onsubmit="return confirm('Archiver ce livreur ?')">
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-archive me-2"></i> Archiver
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-2">
+                        <strong>Zone assignée :</strong><br>
+                        {% if livreur.zoneNom %}
+                            <span class="badge bg-info">{{ livreur.zoneNom }}</span>
+                        {% else %}
+                            <span class="text-muted">Aucune zone</span>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <strong>Commandes en cours :</strong>
+                        <span class="badge bg-primary">{{ livreur.commandesEnCours }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Aucun livreur enregistré. <a href="{{ path('livreur_create') }}">Créer le premier livreur</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

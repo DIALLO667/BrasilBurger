@@ -19,7 +19,6 @@ class CommandeController extends AbstractController
     #[Route('', name: 'commande_index')]
     public function index(Request $request): Response
     {
-        // Créer DTO filtres depuis request
         $filtres = new FiltreCommandeDTO();
         $filtres->etat = $request->query->get('etat');
         $filtres->type = $request->query->get('type');
@@ -34,7 +33,6 @@ class CommandeController extends AbstractController
         
         $filtres->clientNom = $request->query->get('clientNom');
         
-        // Récupérer commandes
         $commandes = $this->commandeService->listerCommandes($filtres);
         
         return $this->render('commande/index.html.twig', [
@@ -65,18 +63,6 @@ class CommandeController extends AbstractController
             $this->addFlash('success', 'Commande terminée avec succès');
         } else {
             $this->addFlash('error', 'Erreur lors du changement d\'état');
-        }
-        
-        return $this->redirectToRoute('commande_detail', ['id' => $id]);
-    }
-
-    #[Route('/{id}/annuler', name: 'commande_annuler', methods: ['POST'])]
-    public function annuler(int $id): Response
-    {
-        if ($this->commandeService->annulerCommande($id)) {
-            $this->addFlash('success', 'Commande annulée');
-        } else {
-            $this->addFlash('error', 'Erreur lors de l\'annulation');
         }
         
         return $this->redirectToRoute('commande_detail', ['id' => $id]);

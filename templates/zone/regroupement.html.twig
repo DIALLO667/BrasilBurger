@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Regroupement par zones{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1>Regroupement des livraisons par zone</h1>
+            <p class="text-muted">Commandes en cours à livrer</p>
+        </div>
+    </div>
+
+    {% if groupes|length > 0 %}
+        {% for groupe in groupes %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">
+                            📍 {{ groupe.zoneNom }}
+                            <span class="badge bg-primary ms-2">{{ groupe.nombreCommandes }} commande(s)</span>
+                        </h5>
+                        <small class="text-muted">Prix livraison : {{ groupe.prixLivraison|number_format(0, ',', ' ') }} FCFA</small>
+                    </div>
+                    <div>
+                        {% if groupe.livreurAffecte %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-motorcycle me-1"></i> 
+                                {{ groupe.livreurAffecte.getNomComplet() }}
+                            </span>
+                        {% else %}
+                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalZone{{ groupe.zoneId }}">
+                                <i class="fas fa-user-plus me-1"></i> Affecter livreur
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>#ID</th>
+                                <th>Client</th>
+                                <th>Téléphone</th>
+                                <th>Adresse</th>
+                                <th>Montant</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for commande in groupe.commandes %}
+                            <tr>
+                                <td><strong>#{{ commande.id }}</strong></td>
+                                <td>{{ commande.client_nom }}</td>
+                                <td>{{ commande.client_telephone }}</td>
+                                <td>{{ commande.adresse_livraison|slice(0, 40) }}...</td>
+                                <td>{{ commande.montant_total|number_format(0, ',', ' ') }} FCFA</td>
+                                <td>{{ commande.date_commande|date('d/m H:i') }}</td>
+                                <td>
+                                    <a href="{{ path('commande_detail', {id: commande.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Affecter Livreur -->
+        <div class="modal fade" id="modalZone{{ groupe.zoneId }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Affecter un livreur - {{ groupe.zoneNom }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Choisissez un livreur pour les <strong>{{ groupe.nombreCommandes }} commande(s)</strong> de cette zone :</p>
+                        
+                        <div class="list-group">
+                            {% for livreur in livreurs %}
+                            <form method="post" action="{{ path('zone_affecter_livreur', {zoneId: groupe.zoneId, livreurId: livreur.id}) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ livreur.getNomComplet() }}</strong><br>
+                                        <small class="text-muted">{{ livreur.telephone }}</small>
+                                        {% if livreur.zoneNom %}
+                                        <br><small class="badge bg-info">Zone actuelle : {{ livreur.zoneNom }}</small>
+                                        {% endif %}
+                                        {% if livreur.commandesEnCours > 0 %}
+                                        <br><small class="badge bg-warning">{{ livreur.commandesEnCours }} commande(s) en cours</small>
+                                        {% endif %}
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Affecter ce livreur ?')">
+                                        Affecter
+                                    </button>
+                                </div>
+                            </form>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Aucune commande en cours de livraison pour le moment.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
