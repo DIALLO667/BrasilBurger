@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: symfony-gestionnaire
+    env: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: free
+    branch: symfony
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_ugsXhN7CrEV2@ep-twilight-violet-adpx7ul6-pooler.c-2.us-east-1.aws.neon.tech:5432/neondb?sslmode=require&charset=utf8
