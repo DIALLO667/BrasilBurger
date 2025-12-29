@@ -67,4 +67,16 @@ class CommandeController extends AbstractController
         
         return $this->redirectToRoute('commande_detail', ['id' => $id]);
     }
+
+    #[Route('/{id}/annuler', name: 'commande_annuler', methods: ['POST'])]
+    public function annuler(int $id): Response
+    {
+        if ($this->commandeService->annulerCommande($id)) {
+            $this->addFlash('success', 'Commande annulée');
+        } else {
+            $this->addFlash('error', 'Erreur lors de l\'annulation');
+        }
+        
+        return $this->redirectToRoute('commande_detail', ['id' => $id]);
+    }
 }

@@ -41,7 +41,7 @@
                     <p class="mt-2"><strong>Zone :</strong> {{ commande.zone.nom }} ({{ commande.zone.prix_livraison }} FCFA)</p>
                     {% endif %}
                     {% if commande.livreur %}
-                    <p><strong>Livreur :</strong> {{ commande.livreur.prenom }} {{ commande.livreur.nom }} ({{ commande.livreur.telephone }})</p>
+                    <p><strong>🏍️ Livreur affecté :</strong> {{ commande.livreur.prenom }} {{ commande.livreur.nom }} ({{ commande.livreur.telephone }})</p>
                     {% endif %}
                     {% endif %}
                 </div>
@@ -152,6 +152,8 @@
                                 <span class="badge bg-primary">En cours</span>
                             {% elseif commande.etat == 'terminee' %}
                                 <span class="badge bg-success">Terminée</span>
+                            {% elseif commande.etat == 'annulee' %}
+                                <span class="badge bg-danger">Annulée</span>
                             {% else %}
                                 <span class="badge bg-secondary">{{ commande.etat }}</span>
                             {% endif %}
@@ -172,14 +174,24 @@
                 </div>
                 <div class="card-body">
                     {% if commande.etat == 'en_cours' %}
-                        <form method="post" action="{{ path('commande_terminer', {id: commande.id}) }}">
-                            <button type="submit" class="btn btn-success w-100" onclick="return confirm('Marquer cette commande comme terminée ?')">
+                        <form method="post" action="{{ path('commande_terminer', {id: commande.id}) }}" class="mb-2">
+                            <button type="submit" class="btn btn-success w-100">
                                 ✓ Terminer la commande
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{{ path('commande_annuler', {id: commande.id}) }}">
+                            <button type="submit" class="btn btn-danger w-100">
+                                ✗ Annuler la commande
                             </button>
                         </form>
                     {% elseif commande.etat == 'terminee' %}
                         <div class="alert alert-success mb-0">
                             ✓ Commande terminée
+                        </div>
+                    {% elseif commande.etat == 'annulee' %}
+                        <div class="alert alert-danger mb-0">
+                            ✗ Commande annulée
                         </div>
                     {% endif %}
                 </div>

@@ -7,64 +7,263 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #3B82F6;
-            --secondary: #6B7280;
-            --success: #10B981;
-            --warning: #FCD34D;
-            --danger: #EF4444;
+            /* Couleurs Design System */
+            --primary: #FF6B35;
+            --accent: #FFD23F;
+            --success: #2E7D32;
+            --destructive: #E53935;
+            --status-pending: #2196F3;
+            --status-ready: #FFC107;
+            --sidebar-background: #1A1D23;
+            
+            /* Typographie */
+            --font-display: 'Poppins', sans-serif;
+            --font-sans: 'Inter', sans-serif;
+            
+            /* Autres */
+            --border-radius: 0.75rem;
+            --sidebar-width: 280px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            background-color: #F9FAFB;
+            font-family: var(--font-sans);
+            background-color: #F8F9FA;
+            color: #212529;
         }
         
+        h1, h2, h3, h4, h5, h6, .display {
+            font-family: var(--font-display);
+            font-weight: 700;
+        }
+        
+        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
-            width: 250px;
-            background: white;
-            border-right: 1px solid #E5E7EB;
-            padding: 20px;
+            width: var(--sidebar-width);
+            background: var(--sidebar-background);
+            color: white;
+            padding: 2rem 1.5rem;
             overflow-y: auto;
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 30px;
+            z-index: 1000;
         }
         
         .sidebar-logo {
-            font-size: 24px;
-            font-weight: 700;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
             color: var(--primary);
-            margin-bottom: 30px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         .sidebar-menu a {
-            display: block;
-            padding: 12px 16px;
-            color: #4B5563;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            transition: all 0.2s;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
         
-        .sidebar-menu a:hover,
+        .sidebar-menu a:hover {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+        }
+        
         .sidebar-menu a.active {
             background: var(--primary);
             color: white;
         }
         
+        .sidebar-menu small {
+            display: block;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .sidebar-menu hr {
+            border-color: rgba(255, 255, 255, 0.1);
+            margin: 1rem 0;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        /* Cards */
         .card {
             border: none;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border-radius: 12px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            animation: animate-fade-in 0.3s ease;
+        }
+        
+        /* Badges Statut */
+        .badge.bg-primary { background-color: var(--status-pending) !important; }
+        .badge.bg-success { background-color: var(--success) !important; }
+        .badge.bg-danger { background-color: var(--destructive) !important; }
+        .badge.bg-warning { background-color: var(--status-ready) !important; color: #000 !important; }
+        .badge.bg-info { background-color: var(--accent) !important; color: #000 !important; }
+        
+        /* Boutons */
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background-color: #E55A2A;
+            border-color: #E55A2A;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+        }
+        
+        .btn-danger {
+            background-color: var(--destructive);
+            border-color: var(--destructive);
+        }
+        
+        .btn-warning {
+            background-color: var(--status-ready);
+            border-color: var(--status-ready);
+            color: #000;
+        }
+        
+        /* Animations */
+        @keyframes animate-fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 5px var(--primary);
+            }
+            50% {
+                box-shadow: 0 0 20px var(--primary);
+            }
+        }
+        
+        /* Stats Cards */
+        .stat-card {
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card h2 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-card h6 {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            opacity: 0.9;
+        }
+        
+        /* Alerts */
+        .alert {
+            border-radius: var(--border-radius);
+            border: none;
+        }
+        
+        .alert-success {
+            background-color: rgba(46, 125, 50, 0.1);
+            color: var(--success);
+        }
+        
+        .alert-danger {
+            background-color: rgba(229, 57, 53, 0.1);
+            color: var(--destructive);
+        }
+        
+        .alert-info {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--status-pending);
+        }
+        
+        /* Tables */
+        .table {
+            font-family: var(--font-sans);
+        }
+        
+        .table thead th {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            color: #6C757D;
+        }
+        
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: calc(var(--border-radius) * 0.5);
+            border: 1px solid #DEE2E6;
+            font-family: var(--font-sans);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+        }
+        
+        /* Modal */
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #DEE2E6;
+        }
+        
+        .modal-title {
+            font-family: var(--font-display);
+            font-weight: 700;
         }
     </style>
     
@@ -78,23 +277,40 @@
         
         <nav class="sidebar-menu">
             <a href="{{ path('dashboard') }}" class="{{ app.request.attributes.get('_route') == 'dashboard' ? 'active' : '' }}">
-                <i class="fas fa-chart-line me-2"></i> Dashboard
+                <i class="fas fa-chart-line"></i> Dashboard
             </a>
             <a href="{{ path('commande_index') }}" class="{{ app.request.attributes.get('_route') starts with 'commande_' ? 'active' : '' }}">
-                <i class="fas fa-shopping-bag me-2"></i> Commandes
+                <i class="fas fa-shopping-bag"></i> Commandes
             </a>
             <a href="{{ path('client_recherche') }}" class="{{ app.request.attributes.get('_route') starts with 'client_' ? 'active' : '' }}">
-                <i class="fas fa-users me-2"></i> Clients
+                <i class="fas fa-users"></i> Clients
             </a>
-            <a href="{{ path('zone_regroupement') }}" class="{{ app.request.attributes.get('_route') starts with 'zone_' ? 'active' : '' }}">
-                <i class="fas fa-map-marked-alt me-2"></i> Zones & Livraisons
+            
+            <small>PRODUITS</small>
+            <a href="{{ path('burger_index') }}" class="{{ app.request.attributes.get('_route') starts with 'burger_' ? 'active' : '' }}">
+                <i class="fas fa-hamburger"></i> Burgers
+            </a>
+            <a href="{{ path('menu_index') }}" class="{{ app.request.attributes.get('_route') starts with 'menu_' ? 'active' : '' }}">
+                <i class="fas fa-utensils"></i> Menus
+            </a>
+            <a href="{{ path('complement_index') }}" class="{{ app.request.attributes.get('_route') starts with 'complement_' ? 'active' : '' }}">
+                <i class="fas fa-glass-cheers"></i> Compléments
+            </a>
+            
+            <small>LIVRAISON</small>
+            <a href="{{ path('zone_index') }}" class="{{ (app.request.attributes.get('_route') starts with 'zone_' and app.request.attributes.get('_route') != 'zone_regroupement') ? 'active' : '' }}">
+                <i class="fas fa-map-marker-alt"></i> Zones
+            </a>
+            <a href="{{ path('zone_regroupement') }}" class="{{ app.request.attributes.get('_route') == 'zone_regroupement' ? 'active' : '' }}">
+                <i class="fas fa-truck"></i> Livraisons
             </a>
             <a href="{{ path('livreur_index') }}" class="{{ app.request.attributes.get('_route') starts with 'livreur_' ? 'active' : '' }}">
-                <i class="fas fa-motorcycle me-2"></i> Livreurs
+                <i class="fas fa-motorcycle"></i> Livreurs
             </a>
+            
             <hr>
             <a href="{{ path('app_logout') }}">
-                <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
             </a>
         </nav>
     </div>
@@ -102,14 +318,14 @@
     <div class="main-content">
         {% for message in app.flashes('success') %}
             <div class="alert alert-success alert-dismissible fade show">
-                {{ message }}
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
         
         {% for message in app.flashes('error') %}
             <div class="alert alert-danger alert-dismissible fade show">
-                {{ message }}
+                <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}

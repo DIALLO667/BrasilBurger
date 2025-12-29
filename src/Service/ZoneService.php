@@ -55,4 +55,39 @@ class ZoneService
     {
         return $this->zoneRepository->findAllZones();
     }
+
+    /**
+     * Récupérer une zone
+     */
+    public function getZone(int $id): ?array
+    {
+        return $this->zoneRepository->findOneById($id);
+    }
+
+    /**
+     * Créer une zone
+     */
+    public function creerZone(array $data): int
+    {
+        // Convertir array de quartiers en JSON
+        $data['quartiers'] = json_encode($data['quartiers']);
+        return $this->zoneRepository->create($data);
+    }
+
+    /**
+     * Modifier une zone
+     */
+    public function modifierZone(int $id, array $data): bool
+    {
+        $data['quartiers'] = json_encode($data['quartiers']);
+        return $this->zoneRepository->update($id, $data);
+    }
+
+    /**
+     * Supprimer une zone
+     */
+    public function supprimerZone(int $id): bool
+    {
+        return $this->zoneRepository->delete($id);
+    }
 }

@@ -4,90 +4,217 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - Brasil Burger</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --primary: #FF6B35;
+            --sidebar-background: #1A1D23;
+            --font-display: 'Poppins', sans-serif;
+            --font-sans: 'Inter', sans-serif;
+        }
+        
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: var(--font-sans);
+            background: var(--sidebar-background);
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -15%;
+            width: 500px;
+            height: 500px;
+            background: #FFD23F;
+            border-radius: 50%;
+            opacity: 0.08;
+            animation: float 25s infinite ease-in-out reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 30px); }
+        }
+        
         .login-card {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 450px;
+            border-radius: 1.25rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            padding: 3rem 2.5rem;
+            max-width: 440px;
             width: 100%;
+            position: relative;
+            z-index: 10;
+            animation: slideIn 0.5s ease;
         }
-        .login-logo {
-            font-size: 48px;
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .logo {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 800;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
         }
-        .login-title {
+        
+        .logo-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
             text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 30px;
         }
-        .btn-login {
-            padding: 12px;
-            border-radius: 10px;
+        
+        .subtitle {
+            text-align: center;
+            color: #6C757D;
+            margin-bottom: 2.5rem;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .form-label {
             font-weight: 600;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #495057;
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem;
+            border: 2px solid #E9ECEF;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(255, 107, 53, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary) 0%, #E55A2A 100%);
             border: none;
+            color: white;
+            font-weight: 700;
+            font-family: var(--font-display);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: all 0.3s;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .btn-login:active {
+            transform: translateY(-1px);
+        }
+        
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+            background: rgba(229, 57, 53, 0.1);
+            color: #E53935;
+            font-weight: 500;
+        }
+        
+        .test-credentials {
+            background: rgba(255, 107, 53, 0.08);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        
+        .test-credentials small {
+            font-weight: 500;
+            color: var(--primary);
         }
     </style>
 </head>
 <body>
     <div class="login-card">
-        <div class="login-logo">🍔</div>
-        <h1 class="login-title">Brasil Burger</h1>
-        <p class="text-center text-muted mb-4">Espace Gestionnaire</p>
-
+        <div class="logo-icon">🍔</div>
+        <div class="logo" style="color: var(--primary);">Brasil Burger</div>
+        <p class="subtitle">Espace Gestionnaire</p>
+        
         {% if error %}
-            <div class="alert alert-danger">
-                Email ou mot de passe incorrect
+            <div class="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Email ou mot de passe incorrect</strong>
             </div>
         {% endif %}
-
+        
         <form method="post">
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" 
-                       class="form-control" 
-                       id="email" 
-                       name="_username" 
-                       value="{{ last_username }}" 
-                       required 
-                       autofocus
-                       placeholder="admin@brasilburger.com">
+                <label for="email" class="form-label">
+                    <i class="fas fa-envelope me-2"></i>Email
+                </label>
+                <input type="email" class="form-control" id="email" name="_username" value="{{ last_username }}" required autofocus placeholder="admin@brasilburger.com">
             </div>
-
-            <div class="mb-4">
-                <label for="password" class="form-label">Mot de passe</label>
-                <input type="password" 
-                       class="form-control" 
-                       id="password" 
-                       name="_password" 
-                       required
-                       placeholder="••••••••">
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock me-2"></i>Mot de passe
+                </label>
+                <input type="password" class="form-control" id="password" name="_password" required placeholder="••••••••">
             </div>
-
+            
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-            <button type="submit" class="btn btn-primary btn-login w-100">
-                Se connecter
+            
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>SE CONNECTER
             </button>
         </form>
-
-        <div class="text-center mt-4">
-            <small class="text-muted">
-                Test: admin@brasilburger.com / admin123
+        
+        <div class="test-credentials">
+            <small>
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Test :</strong> admin@brasilburger.com / admin123
             </small>
         </div>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

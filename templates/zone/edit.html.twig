@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier zone{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Modifier zone</h1>
+                <a href="{{ path('zone_index') }}" class="btn btn-secondary">← Retour</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="nom" class="form-label">Nom de la zone *</label>
+                            <input type="text" class="form-control" id="nom" name="nom" value="{{ zone.nom }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="prix_livraison" class="form-label">Prix de livraison (FCFA) *</label>
+                            <input type="number" class="form-control" id="prix_livraison" name="prix_livraison" value="{{ zone.prix_livraison }}" required min="0" step="100">
+                        </div>
+
+                        <hr>
+
+                        <h5 class="mb-3">Quartiers couverts (minimum 2)</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 1 *</label>
+                                <input type="text" class="form-control" name="quartier_1" value="{{ quartiers[0] ?? '' }}" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 2 *</label>
+                                <input type="text" class="form-control" name="quartier_2" value="{{ quartiers[1] ?? '' }}" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 3</label>
+                                <input type="text" class="form-control" name="quartier_3" value="{{ quartiers[2] ?? '' }}">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 4</label>
+                                <input type="text" class="form-control" name="quartier_4" value="{{ quartiers[3] ?? '' }}">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 5</label>
+                                <input type="text" class="form-control" name="quartier_5" value="{{ quartiers[4] ?? '' }}">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

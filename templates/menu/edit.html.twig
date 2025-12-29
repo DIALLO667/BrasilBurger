@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier menu{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Modifier menu</h1>
+                <a href="{{ path('menu_index') }}" class="btn btn-secondary">← Retour</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    {% if menu.image %}
+                    <div class="mb-3">
+                        <img src="{{ menu.image }}" alt="{{ menu.nom }}" class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="nom" class="form-label">Nom du menu *</label>
+                            <input type="text" class="form-control" id="nom" name="nom" value="{{ menu.nom }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Changer l'image</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="text-muted">Laisser vide pour garder l'image actuelle</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

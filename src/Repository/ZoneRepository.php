@@ -19,10 +19,71 @@ class ZoneRepository extends ServiceEntityRepository
     public function findAllZones(): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        
         $sql = "SELECT * FROM zone ORDER BY nom";
-        
         return $conn->executeQuery($sql)->fetchAllAssociative();
+    }
+
+    /**
+     * Une zone par ID
+     */
+    public function findOneById(int $id): ?array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT * FROM zone WHERE id = :id";
+        return $conn->executeQuery($sql, ['id' => $id])->fetchAssociative() ?: null;
+    }
+
+    /**
+     * Créer une zone
+     */
+    public function create(array $data): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        
+        $sql = "
+            INSERT INTO zone (nom, quartiers, prix_livraison)
+            VALUES (:nom, :quartiers, :prixLivraison)
+            RETURNING id
+        ";
+        
+        $result = $conn->executeQuery($sql, [
+            'nom' => $data['nom'],
+            'quartiers' => $data['quartiers'], // JSON string
+            'prixLivraison' => $data['prix_livraison']
+        ])->fetchAssociative();
+        
+        return $result['id'];
+    }
+
+    /**
+     * Modifier une zone
+     */
+    public function update(int $id, array $data): bool
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        
+        $sql = "
+            UPDATE zone 
+            SET nom = :nom, quartiers = :quartiers, prix_livraison = :prixLivraison
+            WHERE id = :id
+        ";
+        
+        return $conn->executeStatement($sql, [
+            'id' => $id,
+            'nom' => $data['nom'],
+            'quartiers' => $data['quartiers'],
+            'prixLivraison' => $data['prix_livraison']
+        ]) > 0;
+    }
+
+    /**
+     * Supprimer une zone
+     */
+    public function delete(int $id): bool
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "DELETE FROM zone WHERE id = :id";
+        return $conn->executeStatement($sql, ['id' => $id]) > 0;
     }
 
     /**

@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle zone{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Nouvelle zone</h1>
+                <a href="{{ path('zone_index') }}" class="btn btn-secondary">← Retour</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="nom" class="form-label">Nom de la zone *</label>
+                            <input type="text" class="form-control" id="nom" name="nom" required placeholder="Ex: Zone Nord">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="prix_livraison" class="form-label">Prix de livraison (FCFA) *</label>
+                            <input type="number" class="form-control" id="prix_livraison" name="prix_livraison" required min="0" step="100" placeholder="1000">
+                        </div>
+
+                        <hr>
+
+                        <h5 class="mb-3">Quartiers couverts (minimum 2)</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 1 *</label>
+                                <input type="text" class="form-control" name="quartier_1" required placeholder="Ex: Plateau">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 2 *</label>
+                                <input type="text" class="form-control" name="quartier_2" required placeholder="Ex: Almadies">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 3</label>
+                                <input type="text" class="form-control" name="quartier_3" placeholder="Optionnel">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 4</label>
+                                <input type="text" class="form-control" name="quartier_4" placeholder="Optionnel">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quartier 5</label>
+                                <input type="text" class="form-control" name="quartier_5" placeholder="Optionnel">
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Vous devez saisir au moins 2 quartiers. Vous pouvez en ajouter jusqu'à 5.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Créer la zone
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

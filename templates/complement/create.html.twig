@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau complément{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Nouveau complément</h1>
+                <a href="{{ path('complement_index') }}" class="btn btn-secondary">← Retour</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="nom" class="form-label">Nom du complément *</label>
+                            <input type="text" class="form-control" id="nom" name="nom" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="prix" class="form-label">Prix (FCFA) *</label>
+                            <input type="number" class="form-control" id="prix" name="prix" required min="0" step="100">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="text-muted">Formats acceptés : JPG, PNG, GIF</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Créer le complément
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

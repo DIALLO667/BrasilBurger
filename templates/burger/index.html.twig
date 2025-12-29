@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Burgers{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>Gestion des Burgers</h1>
+                    <p class="text-muted">{{ burgers|length }} burger(s)</p>
+                </div>
+                <a href="{{ path('burger_create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i> Nouveau burger
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for burger in burgers %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if burger.image %}
+                <img src="{{ burger.image }}" class="card-img-top" alt="{{ burger.nom }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-hamburger fa-3x text-white"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ burger.nom }}</h5>
+                    <p class="card-text">
+                        <strong class="text-primary">{{ burger.prix|number_format(0, ',', ' ') }} FCFA</strong>
+                    </p>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('burger_edit', {id: burger.id}) }}" class="btn btn-sm btn-warning flex-fill">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        <form method="post" action="{{ path('burger_archive', {id: burger.id}) }}" class="flex-fill">
+                            <button type="submit" class="btn btn-sm btn-danger w-100">
+                                <i class="fas fa-archive"></i> Archiver
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Aucun burger. <a href="{{ path('burger_create') }}">Créer le premier burger</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

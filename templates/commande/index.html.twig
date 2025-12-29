@@ -21,6 +21,7 @@
                         <option value="">Tous</option>
                         <option value="en_cours" {{ filtres.etat == 'en_cours' ? 'selected' : '' }}>En cours</option>
                         <option value="terminee" {{ filtres.etat == 'terminee' ? 'selected' : '' }}>Terminée</option>
+                        <option value="annulee" {{ filtres.etat == 'annulee' ? 'selected' : '' }}>Annulée</option>
                     </select>
                 </div>
 
@@ -34,19 +35,27 @@
                     </select>
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Client (nom)</label>
-                    <input type="text" name="clientNom" class="form-control" value="{{ filtres.clientNom }}" placeholder="Rechercher...">
+                <div class="col-md-2">
+                    <label class="form-label">Date début</label>
+                    <input type="date" name="dateDebut" class="form-control" value="{{ filtres.dateDebut ? filtres.dateDebut|date('Y-m-d') : '' }}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Date fin</label>
+                    <input type="date" name="dateFin" class="form-control" value="{{ filtres.dateFin ? filtres.dateFin|date('Y-m-d') : '' }}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Client</label>
+                    <input type="text" name="clientNom" class="form-control" value="{{ filtres.clientNom }}" placeholder="Nom...">
                 </div>
 
                 <div class="col-md-2">
                     <label class="form-label">&nbsp;</label>
-                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
-                </div>
-
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <a href="{{ path('commande_index') }}" class="btn btn-secondary w-100">Réinitialiser</a>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Filtrer</button>
+                        <a href="{{ path('commande_index') }}" class="btn btn-secondary">Reset</a>
+                    </div>
                 </div>
             </form>
         </div>
@@ -89,6 +98,8 @@
                                     <span class="badge bg-primary">En cours</span>
                                 {% elseif commande.etat == 'terminee' %}
                                     <span class="badge bg-success">Terminée</span>
+                                {% elseif commande.etat == 'annulee' %}
+                                    <span class="badge bg-danger">Annulée</span>
                                 {% else %}
                                     <span class="badge bg-secondary">{{ commande.etat }}</span>
                                 {% endif %}

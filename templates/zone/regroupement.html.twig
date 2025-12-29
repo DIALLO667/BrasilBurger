@@ -25,9 +25,9 @@
                     </div>
                     <div>
                         {% if groupe.livreurAffecte %}
-                            <span class="badge bg-success">
+                            <span class="badge bg-success p-2">
                                 <i class="fas fa-motorcycle me-1"></i> 
-                                {{ groupe.livreurAffecte.getNomComplet() }}
+                                Livreur: {{ groupe.livreurAffecte.getNomComplet() }}
                             </span>
                         {% else %}
                             <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalZone{{ groupe.zoneId }}">
@@ -71,7 +71,7 @@
             </div>
         </div>
 
-        <!-- Modal Affecter Livreur -->
+        <!-- Modal Affecter Livreur (SANS onclick confirm) -->
         <div class="modal fade" id="modalZone{{ groupe.zoneId }}" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -96,7 +96,7 @@
                                         <br><small class="badge bg-warning">{{ livreur.commandesEnCours }} commande(s) en cours</small>
                                         {% endif %}
                                     </div>
-                                    <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Affecter ce livreur ?')">
+                                    <button type="submit" class="btn btn-sm btn-primary">
                                         Affecter
                                     </button>
                                 </div>
